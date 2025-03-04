@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Search, X, ChevronDown, Loader2 } from "lucide-react";
-import { CompanySuggestion, Company } from "@/types/company";
+import { Search, X, ChevronDown, Loader2, Filter } from "lucide-react";
+import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
 import { searchCompanies, getCompanyById } from "@/services/searchService";
 import SearchResult from "./SearchResult";
 import SearchSkeleton from "./SearchSkeleton";
@@ -19,6 +19,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   const [results, setResults] = useState<CompanySuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [totalResults, setTotalResults] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -41,16 +44,30 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     const fetchResults = async () => {
       if (debouncedQuery.trim().length < 2) {
         setResults([]);
+        setTotalResults(0);
+        setHasMore(false);
+        setSearchError(null);
         return;
       }
       
       try {
         setIsLoading(true);
-        const data = await searchCompanies(debouncedQuery);
-        setResults(data);
+        setSearchError(null);
+        
+        const searchOptions: SearchOptions = {
+          query: debouncedQuery,
+          limit: 5,
+          offset: 0
+        };
+        
+        const { companies, total, hasMore } = await searchCompanies(searchOptions);
+        
+        setResults(companies);
+        setTotalResults(total);
+        setHasMore(hasMore);
         
         // Open the dropdown if we have results
-        if (data.length > 0) {
+        if (companies.length > 0) {
           setIsOpen(true);
         } else if (debouncedQuery.trim().length > 0) {
           // Only set isOpen to false if there are no results AND we have a query
@@ -58,8 +75,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
         }
       } catch (error) {
         console.error("Error fetching search results:", error);
+        setSearchError("Failed to connect to registry services. Please try again.");
         toast({
-          title: "Error",
+          title: "Search Error",
           description: "Failed to fetch search results. Please try again.",
           variant: "destructive",
         });
@@ -78,6 +96,10 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     // If the input is cleared, reset the selected company
     if (!value.trim()) {
       setSelectedCompany(null);
+      setResults([]);
+      setTotalResults(0);
+      setHasMore(false);
+      setSearchError(null);
     }
     
     // Open dropdown if there's text and we're not already open
@@ -107,8 +129,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     } catch (error) {
       console.error("Error fetching company details:", error);
       toast({
-        title: "Error",
-        description: "Failed to fetch company details. Please try again.",
+        title: "Registry Error",
+        description: "Failed to fetch company details from registry. The service may be temporarily unavailable.",
         variant: "destructive",
       });
     } finally {
@@ -120,8 +142,39 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     setSearchQuery("");
     setSelectedCompany(null);
     setResults([]);
+    setTotalResults(0);
+    setHasMore(false);
+    setSearchError(null);
     setIsOpen(false);
     inputRef.current?.focus();
+  };
+
+  const loadMoreResults = async () => {
+    if (!hasMore || isLoading) return;
+    
+    try {
+      setIsLoading(true);
+      
+      const searchOptions: SearchOptions = {
+        query: debouncedQuery,
+        limit: 5,
+        offset: results.length
+      };
+      
+      const { companies, hasMore: moreResults } = await searchCompanies(searchOptions);
+      
+      setResults(prev => [...prev, ...companies]);
+      setHasMore(moreResults);
+    } catch (error) {
+      console.error("Error loading more results:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load more results. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -167,17 +220,48 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
         {/* Results dropdown */}
         {isOpen && (
           <div className="border-t border-gray-100 dark:border-gray-800 max-h-[320px] overflow-y-auto overscroll-contain">
-            {isLoading ? (
+            {isLoading && results.length === 0 ? (
               <SearchSkeleton count={3} />
+            ) : searchError ? (
+              <div className="py-6 text-center text-red-500">
+                {searchError}
+              </div>
             ) : results.length > 0 ? (
-              results.map(result => (
-                <SearchResult
-                  key={result.id}
-                  result={result}
-                  searchQuery={searchQuery}
-                  onSelect={handleSelectResult}
-                />
-              ))
+              <>
+                <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 dark:bg-gray-800/50">
+                  <div className="flex justify-between items-center">
+                    <span>Showing {results.length} of {totalResults} results</span>
+                    <div className="flex items-center gap-1">
+                      <Filter className="h-3.5 w-3.5" />
+                      <span>Database search</span>
+                    </div>
+                  </div>
+                </div>
+                {results.map(result => (
+                  <SearchResult
+                    key={result.id}
+                    result={result}
+                    searchQuery={searchQuery}
+                    onSelect={handleSelectResult}
+                  />
+                ))}
+                {hasMore && (
+                  <button 
+                    onClick={loadMoreResults} 
+                    className="w-full py-2 text-sm text-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center justify-center gap-1">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Loading...
+                      </span>
+                    ) : (
+                      'Load more results'
+                    )}
+                  </button>
+                )}
+              </>
             ) : searchQuery.trim().length >= 2 ? (
               <div className="py-6 text-center text-gray-500">
                 No companies found matching your search.
@@ -195,7 +279,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
             <div className="space-y-2">
               <div className="flex items-center">
                 <span className="text-sm text-gray-500 w-32">Jurisdiction:</span>
-                <span className="font-medium">{selectedCompany.jurisdiction}</span>
+                <span className="font-medium">{selectedCompany.jurisdiction.replace('_', ' ')}</span>
               </div>
               <div className="flex items-center">
                 <span className="text-sm text-gray-500 w-32">Reg. Number:</span>
@@ -213,7 +297,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
                           : 'bg-red-500'
                     }`}
                   ></span>
-                  {selectedCompany.status}
+                  {selectedCompany.status.replace('_', ' ')}
                 </span>
               </div>
             </div>
@@ -228,7 +312,51 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
                   {new Date(selectedCompany.incorporationDate).toLocaleDateString()}
                 </span>
               </div>
+              {selectedCompany.businessNumber && (
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-500 w-32">Business #:</span>
+                  <span className="font-medium">{selectedCompany.businessNumber}</span>
+                </div>
+              )}
             </div>
+          </div>
+          
+          {/* Address information if available */}
+          {selectedCompany.address && (
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+              <h3 className="text-sm font-medium mb-2">Registered Address</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {selectedCompany.address.street}, {selectedCompany.address.city}, {selectedCompany.address.province}, {selectedCompany.address.postalCode}
+              </p>
+            </div>
+          )}
+          
+          {/* Directors information if available */}
+          {selectedCompany.directors && selectedCompany.directors.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+              <h3 className="text-sm font-medium mb-2">Directors</h3>
+              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                {selectedCompany.directors.map((director, index) => (
+                  <li key={index} className="flex">
+                    <span className="font-medium">{director.name}</span>
+                    {director.position && (
+                      <span className="ml-2 text-gray-500">({director.position})</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {/* Source information */}
+          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
+            <p>
+              Source: {selectedCompany.source === 'ISED_FEDERAL' 
+                ? 'Federal Corporate Registry (ISED-ISDE)' 
+                : selectedCompany.source === 'ONTARIO_REGISTRY'
+                  ? 'Ontario Business Registry'
+                  : "Canada's Business Registries"}
+            </p>
           </div>
         </div>
       )}
