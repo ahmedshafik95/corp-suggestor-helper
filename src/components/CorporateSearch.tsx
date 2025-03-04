@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, ChevronDown, Loader2, Filter, ArrowLeft } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
@@ -41,6 +42,10 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   }, []);
 
   useEffect(() => {
+    // Skip search if a company is already selected to prevent 
+    // dropdown from reopening after selection
+    if (selectedCompany) return;
+    
     const fetchResults = async () => {
       if (debouncedQuery.trim().length < 2) {
         setResults([]);
@@ -85,11 +90,16 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     };
 
     fetchResults();
-  }, [debouncedQuery, toast]);
+  }, [debouncedQuery, toast, selectedCompany]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
+    
+    // When user changes input after selection, clear the selected company
+    if (selectedCompany && value !== selectedCompany.name) {
+      setSelectedCompany(null);
+    }
     
     if (!value.trim()) {
       setSelectedCompany(null);
@@ -99,13 +109,14 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
       setSearchError(null);
     }
     
-    if (value.trim() && !isOpen) {
+    if (value.trim() && !isOpen && !selectedCompany) {
       setIsOpen(true);
     }
   };
 
   const handleInputFocus = () => {
-    if (searchQuery.trim() && results.length > 0) {
+    // Don't open dropdown if company is already selected
+    if (searchQuery.trim() && results.length > 0 && !selectedCompany) {
       setIsOpen(true);
     }
   };
@@ -119,7 +130,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
         setSelectedCompany(company);
         setSearchQuery(company.name);
         onCompanySelect?.(company);
+        // Close dropdown and clear results when company is selected
         setIsOpen(false);
+        setResults([]);
       }
     } catch (error) {
       console.error("Error fetching company details:", error);
@@ -233,7 +246,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
             </Button>
           </div>
           
-          {isOpen && (
+          {/* Only show dropdown if not a selected company */}
+          {isOpen && !selectedCompany && (
             <div className="border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 shadow-lg max-h-[320px] overflow-y-auto overscroll-contain">
               {isLoading && results.length === 0 ? (
                 <SearchSkeleton count={3} />
