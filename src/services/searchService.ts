@@ -1,4 +1,3 @@
-
 import { Company, CompanySuggestion, SearchOptions, SearchResult } from "@/types/company";
 
 // The real API endpoint
@@ -132,6 +131,32 @@ export const searchCompanies = async (options: SearchOptions): Promise<SearchRes
   }
 };
 
+// Helper function to convert string status to our enum type
+const convertToValidStatus = (status?: string): Company['status'] => {
+  if (!status) return "ACTIVE";
+  
+  const normalized = status.toUpperCase();
+  
+  if (normalized.includes("ACTIVE")) {
+    return "ACTIVE";
+  } else if (normalized.includes("INACTIVE")) {
+    return "INACTIVE";
+  } else if (normalized.includes("DISSOLVED")) {
+    return "DISSOLVED";
+  } else if (normalized.includes("DISCONTINUED")) {
+    return "DISCONTINUED";
+  } else if (normalized.includes("CANCELLED")) {
+    return "CANCELLED";
+  } else if (normalized.includes("REVOKED")) {
+    return "REVOKED";
+  } else if (normalized.includes("SUSPENDED")) {
+    return "SUSPENDED";
+  } else {
+    // Default to ACTIVE if status doesn't match any known values
+    return "ACTIVE";
+  }
+};
+
 // For company details, we'll use the mock data for now since the API doesn't have endpoints for individual companies
 // In a real implementation, you would fetch this from a company details endpoint
 export const getCompanyById = async (id: string): Promise<Company | null> => {
@@ -145,13 +170,16 @@ export const getCompanyById = async (id: string): Promise<Company | null> => {
   const suggestions = await searchCompanies({ query: id, limit: 5 });
   const matchingSuggestion = suggestions.companies.find(c => c.id === id);
   
+  // Convert string status to our enum type
+  const status = convertToValidStatus(matchingSuggestion?.status);
+  
   // In a real implementation, you would fetch the company details from an API
   const company: Company = {
     id,
     name: matchingSuggestion?.name || "Company Name",
     registrationNumber: matchingSuggestion?.registrationNumber || id.replace("cbr-", ""),
     jurisdiction: matchingSuggestion?.jurisdiction || (id.includes("ont-") ? "ONTARIO" : "FEDERAL"),
-    status: matchingSuggestion?.status || "ACTIVE",
+    status,
     type: "CORPORATION",
     incorporationDate: matchingSuggestion?.incorporationDate || new Date().toISOString().split('T')[0],
     source: matchingSuggestion?.source || (id.includes("cbr-") ? "BUSINESS_REGISTRIES" : id.includes("ont-") ? "ONTARIO_REGISTRY" : "ISED_FEDERAL")
@@ -159,7 +187,7 @@ export const getCompanyById = async (id: string): Promise<Company | null> => {
   
   // Add mock directors for federal companies
   if (company.jurisdiction === "FEDERAL") {
-    company.directors = [
+    company.directors = matchingSuggestion?.directors || [
       { name: "Jane Smith", position: "Director" },
       { name: "John Doe", position: "President" },
       { name: "Alice Johnson", position: "Secretary" }
