@@ -69,7 +69,13 @@ const SearchResult: React.FC<SearchResultProps> = ({
       ? 'bg-green-500' 
       : jurisdiction === 'FEDERAL' 
         ? 'bg-blue-500' 
-        : 'bg-primary';
+        : jurisdiction === 'BRITISH_COLUMBIA'
+          ? 'bg-purple-500'
+          : jurisdiction === 'QUEBEC'
+            ? 'bg-yellow-500'
+            : jurisdiction === 'ALBERTA'
+              ? 'bg-red-500'
+              : 'bg-primary';
         
     return (
       <span className="inline-flex items-center">

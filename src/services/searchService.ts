@@ -7,10 +7,10 @@ const SEARCH_API_URL = "https://searchapi.mrasservice.ca/Search/api/v1/search";
 // Function to convert API response to our CompanySuggestion format
 const convertApiResultsToCompanySuggestions = (apiResults: any[]): CompanySuggestion[] => {
   return apiResults.map(item => ({
-    id: item.identifier || `cbr-${Math.random().toString(36).substring(2, 11)}`,
-    name: item.businessName || item.legalName || item.title || "",
-    jurisdiction: determineJurisdiction(item.jurisdiction),
-    registrationNumber: item.identifier || "",
+    id: item.Juri_ID || item.MRAS_ID || `cbr-${Math.random().toString(36).substring(2, 11)}`,
+    name: item.Company_Name || item.businessName || item.legalName || item.title || "",
+    jurisdiction: determineJurisdiction(item.Jurisdiction || item.Registry_Source),
+    registrationNumber: item.Juri_ID || item.identifier || "",
     source: "BUSINESS_REGISTRIES"
   }));
 };
@@ -47,6 +47,8 @@ const determineJurisdiction = (jurisdiction?: string): Company['jurisdiction'] =
     return "NUNAVUT";
   } else if (normalized.includes("YUKON") || normalized === "YT") {
     return "YUKON";
+  } else if (normalized.includes("CC")) {
+    return "FEDERAL";
   } else {
     return "FEDERAL";
   }
@@ -92,8 +94,8 @@ export const searchCompanies = async (options: SearchOptions): Promise<SearchRes
     console.log("API Response:", data);
 
     // Extract results and convert to our format
-    const apiResults = data.response?.docs || [];
-    const total = data.response?.numFound || 0;
+    const apiResults = data.docs || [];
+    const total = data.totalResults || 0;
     
     const companies = convertApiResultsToCompanySuggestions(apiResults);
     
