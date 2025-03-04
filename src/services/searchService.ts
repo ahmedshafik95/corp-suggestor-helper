@@ -6,13 +6,16 @@ const SEARCH_API_URL = "https://searchapi.mrasservice.ca/Search/api/v1/search";
 
 // Function to convert API response to our CompanySuggestion format
 const convertApiResultsToCompanySuggestions = (apiResults: any[]): CompanySuggestion[] => {
-  return apiResults.map(item => ({
-    id: item.Juri_ID || item.MRAS_ID || `cbr-${Math.random().toString(36).substring(2, 11)}`,
-    name: item.Company_Name || item.businessName || item.legalName || item.title || "",
-    jurisdiction: determineJurisdiction(item.Jurisdiction || item.Registry_Source),
-    registrationNumber: item.Juri_ID || item.identifier || "",
-    source: "BUSINESS_REGISTRIES"
-  }));
+  return apiResults
+    .map(item => ({
+      id: item.Juri_ID || item.MRAS_ID || `cbr-${Math.random().toString(36).substring(2, 11)}`,
+      name: item.Company_Name || item.businessName || item.legalName || item.title || "",
+      jurisdiction: determineJurisdiction(item.Jurisdiction || item.Registry_Source),
+      registrationNumber: item.Juri_ID || item.identifier || "",
+      source: "BUSINESS_REGISTRIES"
+    }))
+    // Filter out Quebec companies
+    .filter(company => company.jurisdiction !== "QUEBEC");
 };
 
 // Helper to map API jurisdiction to our format

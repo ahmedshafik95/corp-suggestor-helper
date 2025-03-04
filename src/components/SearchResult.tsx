@@ -1,4 +1,3 @@
-
 import React from "react";
 import { CompanySuggestion } from "@/types/company";
 import { Globe, Library, Building2 } from "lucide-react";
@@ -71,11 +70,9 @@ const SearchResult: React.FC<SearchResultProps> = ({
         ? 'bg-blue-500' 
         : jurisdiction === 'BRITISH_COLUMBIA'
           ? 'bg-purple-500'
-          : jurisdiction === 'QUEBEC'
-            ? 'bg-yellow-500'
-            : jurisdiction === 'ALBERTA'
-              ? 'bg-red-500'
-              : 'bg-primary';
+          : jurisdiction === 'ALBERTA'
+            ? 'bg-red-500'
+            : 'bg-primary';
         
     return (
       <span className="inline-flex items-center">
