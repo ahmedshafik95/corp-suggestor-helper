@@ -24,6 +24,10 @@ export interface Company {
 export type CompanySuggestion = Pick<Company, 'id' | 'name' | 'jurisdiction' | 'registrationNumber' | 'source'> & {
   incorporationDate?: string;
   status?: string;
+  directors?: {
+    name: string;
+    position?: string;
+  }[];
 };
 
 export interface SearchOptions {

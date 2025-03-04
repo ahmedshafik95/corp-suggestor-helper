@@ -141,18 +141,30 @@ export const getCompanyById = async (id: string): Promise<Company | null> => {
   const fetchDelay = Math.random() * 300 + 200;
   await delay(fetchDelay);
   
+  // Find the suggestion that matches the ID (this would be an API call in a real application)
+  const suggestions = await searchCompanies({ query: id, limit: 5 });
+  const matchingSuggestion = suggestions.companies.find(c => c.id === id);
+  
   // In a real implementation, you would fetch the company details from an API
-  // For now, we'll create a placeholder company
   const company: Company = {
     id,
-    name: id.includes("cbr-") ? "Business from Canada Registry" : "Company Name",
-    registrationNumber: id.replace("cbr-", ""),
-    jurisdiction: id.includes("ont-") ? "ONTARIO" : "FEDERAL",
-    status: "ACTIVE",
+    name: matchingSuggestion?.name || "Company Name",
+    registrationNumber: matchingSuggestion?.registrationNumber || id.replace("cbr-", ""),
+    jurisdiction: matchingSuggestion?.jurisdiction || (id.includes("ont-") ? "ONTARIO" : "FEDERAL"),
+    status: matchingSuggestion?.status || "ACTIVE",
     type: "CORPORATION",
-    incorporationDate: new Date().toISOString().split('T')[0],
-    source: id.includes("cbr-") ? "BUSINESS_REGISTRIES" : id.includes("ont-") ? "ONTARIO_REGISTRY" : "ISED_FEDERAL"
+    incorporationDate: matchingSuggestion?.incorporationDate || new Date().toISOString().split('T')[0],
+    source: matchingSuggestion?.source || (id.includes("cbr-") ? "BUSINESS_REGISTRIES" : id.includes("ont-") ? "ONTARIO_REGISTRY" : "ISED_FEDERAL")
   };
+  
+  // Add mock directors for federal companies
+  if (company.jurisdiction === "FEDERAL") {
+    company.directors = [
+      { name: "Jane Smith", position: "Director" },
+      { name: "John Doe", position: "President" },
+      { name: "Alice Johnson", position: "Secretary" }
+    ];
+  }
   
   return company;
 };

@@ -65,11 +65,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
         setTotalResults(total);
         setHasMore(hasMore);
         
-        // Open the dropdown if we have results
         if (companies.length > 0) {
           setIsOpen(true);
         } else if (debouncedQuery.trim().length > 0) {
-          // Only set isOpen to false if there are no results AND we have a query
           setIsOpen(false);
         }
       } catch (error) {
@@ -92,7 +90,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     const value = e.target.value;
     setSearchQuery(value);
     
-    // If the input is cleared, reset the selected company
     if (!value.trim()) {
       setSelectedCompany(null);
       setResults([]);
@@ -101,14 +98,12 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
       setSearchError(null);
     }
     
-    // Open dropdown if there's text and we're not already open
     if (value.trim() && !isOpen) {
       setIsOpen(true);
     }
   };
 
   const handleInputFocus = () => {
-    // Open dropdown on focus if we have a query and results
     if (searchQuery.trim() && results.length > 0) {
       setIsOpen(true);
     }
@@ -179,7 +174,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   return (
     <div className="w-full max-w-xl mx-auto relative" ref={containerRef}>
       <div className="glass-panel rounded-xl overflow-hidden flex flex-col">
-        {/* Search input */}
         <div className="relative">
           <div className="absolute left-4 inset-y-0 flex items-center pointer-events-none text-gray-400">
             {isLoading ? (
@@ -216,7 +210,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
           </div>
         </div>
         
-        {/* Results dropdown */}
         {isOpen && (
           <div className="border-t border-gray-100 dark:border-gray-800 max-h-[320px] overflow-y-auto overscroll-contain">
             {isLoading && results.length === 0 ? (
@@ -270,10 +263,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
         )}
       </div>
       
-      {/* Selected company details */}
       {selectedCompany && (
         <div className="mt-8 glass-panel rounded-xl p-6 animate-fade-in">
-          <h2 className="text-xl font-medium mb-4">{selectedCompany.name}</h2>
+          <h2 className="text-xl font-semibold mb-4">{selectedCompany.name}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="flex items-center">
@@ -320,7 +312,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
             </div>
           </div>
           
-          {/* Address information if available */}
           {selectedCompany.address && (
             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
               <h3 className="text-sm font-medium mb-2">Registered Address</h3>
@@ -330,7 +321,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
             </div>
           )}
           
-          {/* Directors information if available */}
           {selectedCompany.directors && selectedCompany.directors.length > 0 && (
             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
               <h3 className="text-sm font-medium mb-2">Directors</h3>
@@ -347,7 +337,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
             </div>
           )}
           
-          {/* Source information */}
           <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
             <p>
               Source: {selectedCompany.source === 'ISED_FEDERAL' 
