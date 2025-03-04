@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CompanySuggestion } from "@/types/company";
 import { Globe, Library, Building2 } from "lucide-react";
@@ -13,7 +14,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
   searchQuery, 
   onSelect 
 }) => {
-  const { name, registrationNumber, jurisdiction, source } = result;
+  const { name, registrationNumber, jurisdiction, source, incorporationDate } = result;
   
   // Highlight matching text
   const getHighlightedText = (text: string, highlight: string) => {
@@ -82,6 +83,18 @@ const SearchResult: React.FC<SearchResultProps> = ({
     );
   };
 
+  // Format date for display
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return null;
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch (e) {
+      return null;
+    }
+  };
+
   return (
     <div 
       className="search-result-item transition-all duration-300 animate-slide-in" 
@@ -93,6 +106,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
       <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
         {getJurisdictionDisplay()}
         {registrationNumber && <span>#{registrationNumber}</span>}
+        {incorporationDate && <span className="text-xs">Reg: {formatDate(incorporationDate)}</span>}
         <span className="inline-flex items-center gap-1 text-xs">
           {getSourceIcon()}
           <span>{getSourceName()}</span>

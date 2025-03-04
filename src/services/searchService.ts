@@ -12,10 +12,24 @@ const convertApiResultsToCompanySuggestions = (apiResults: any[]): CompanySugges
       name: item.Company_Name || item.businessName || item.legalName || item.title || "",
       jurisdiction: determineJurisdiction(item.Jurisdiction || item.Registry_Source),
       registrationNumber: item.Juri_ID || item.identifier || "",
-      source: "BUSINESS_REGISTRIES"
+      source: "BUSINESS_REGISTRIES" as const,
+      incorporationDate: item.Date_Incorporated || "",
+      status: item.Status_State || ""
     }))
-    // Filter out Quebec companies
-    .filter(company => company.jurisdiction !== "QUEBEC");
+    // Filter out Quebec companies and non-active companies
+    .filter(company => 
+      company.jurisdiction !== "QUEBEC" && 
+      (company.status?.toLowerCase() === "active" || company.status === "")
+    )
+    // Sort by incorporation date (most recent first)
+    .sort((a, b) => {
+      // If dates are available, sort by them
+      if (a.incorporationDate && b.incorporationDate) {
+        return new Date(b.incorporationDate).getTime() - new Date(a.incorporationDate).getTime();
+      }
+      // If no dates, maintain original ordering
+      return 0;
+    });
 };
 
 // Helper to map API jurisdiction to our format
