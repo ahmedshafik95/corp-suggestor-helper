@@ -13,13 +13,13 @@ const Index = () => {
       <div className="max-w-4xl w-full mx-auto space-y-12">
         <div className="text-center space-y-4">
           <div className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-2">
-            Corporate Registry
+            Canada Business Registry
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Find Ontario and Federal Companies
+            Find Canadian Companies
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Search for corporations by name to access registration information and company details.
+            Search for businesses and corporations across Canada's business registries.
           </p>
         </div>
 
@@ -54,7 +54,7 @@ const Index = () => {
       </div>
       
       <footer className="mt-16 text-center text-gray-500 text-sm">
-        <p>© {new Date().getFullYear()} Corporate Search Tool. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} Canada Business Registry Search. All rights reserved.</p>
       </footer>
     </div>
   );

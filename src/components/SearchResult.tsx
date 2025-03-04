@@ -61,6 +61,24 @@ const SearchResult: React.FC<SearchResultProps> = ({
     }
   };
 
+  // Format jurisdiction for display if available
+  const getJurisdictionDisplay = () => {
+    if (!jurisdiction) return null;
+    
+    const color = jurisdiction === 'ONTARIO' 
+      ? 'bg-green-500' 
+      : jurisdiction === 'FEDERAL' 
+        ? 'bg-blue-500' 
+        : 'bg-primary';
+        
+    return (
+      <span className="inline-flex items-center">
+        <span className={`w-2 h-2 rounded-full mr-1.5 opacity-70 ${color}`}></span>
+        {jurisdiction.replace(/_/g, ' ')}
+      </span>
+    );
+  };
+
   return (
     <div 
       className="search-result-item transition-all duration-300 animate-slide-in" 
@@ -70,17 +88,8 @@ const SearchResult: React.FC<SearchResultProps> = ({
         {getHighlightedText(name, searchQuery)}
       </h3>
       <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-        <span className="inline-flex items-center">
-          <span className={`w-2 h-2 rounded-full mr-1.5 opacity-70 ${
-            jurisdiction === 'ONTARIO' 
-              ? 'bg-green-500' 
-              : jurisdiction === 'FEDERAL' 
-                ? 'bg-blue-500' 
-                : 'bg-primary'
-          }`}></span>
-          {jurisdiction.replace('_', ' ')}
-        </span>
-        <span>#{registrationNumber}</span>
+        {getJurisdictionDisplay()}
+        {registrationNumber && <span>#{registrationNumber}</span>}
         <span className="inline-flex items-center gap-1 text-xs">
           {getSourceIcon()}
           <span>{getSourceName()}</span>

@@ -1,196 +1,120 @@
 
 import { Company, CompanySuggestion, SearchOptions, SearchResult } from "@/types/company";
 
-// This is mock data - in a real implementation, this would be fetched from an API
-const MOCK_COMPANIES: Company[] = [
-  {
-    id: "fed-123456789",
-    name: "Vault Pay Inc.",
-    registrationNumber: "123456789",
-    jurisdiction: "FEDERAL",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2020-01-15",
-    businessNumber: "987654321RC0001",
-    address: {
-      street: "150 Elgin Street",
-      city: "Ottawa",
-      province: "Ontario",
-      postalCode: "K2P 1L4"
-    },
-    directors: [
-      { name: "Jane Smith", position: "President" },
-      { name: "John Doe", position: "Secretary" }
-    ],
-    source: "ISED_FEDERAL"
-  },
-  {
-    id: "ont-987654321",
-    name: "Vault Payment Solutions Ltd.",
-    registrationNumber: "987654321",
-    jurisdiction: "ONTARIO",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2018-05-22",
-    source: "ONTARIO_REGISTRY"
-  },
-  {
-    id: "fed-456789123",
-    name: "Vault Financial Technologies Inc.",
-    registrationNumber: "456789123",
-    jurisdiction: "ONTARIO",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2019-11-08",
-    source: "BUSINESS_REGISTRIES"
-  },
-  {
-    id: "fed-789123456",
-    name: "Digital Vault Pay Systems",
-    registrationNumber: "789123456",
-    jurisdiction: "FEDERAL",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2021-03-17",
-    source: "ISED_FEDERAL"
-  },
-  {
-    id: "ont-654321987",
-    name: "Secure Vault Payments Corp.",
-    registrationNumber: "654321987",
-    jurisdiction: "ONTARIO",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2017-09-30",
-    source: "ONTARIO_REGISTRY"
-  },
-  {
-    id: "fed-321987654",
-    name: "Canadian Payment Vault Ltd.",
-    registrationNumber: "321987654",
-    jurisdiction: "FEDERAL",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2016-12-05",
-    source: "ISED_FEDERAL"
-  },
-  {
-    id: "ont-852963741",
-    name: "Ontario Vault Solutions",
-    registrationNumber: "852963741",
-    jurisdiction: "ONTARIO",
-    status: "INACTIVE",
-    type: "LIMITED_PARTNERSHIP",
-    incorporationDate: "2015-08-11",
-    source: "ONTARIO_REGISTRY"
-  },
-  {
-    id: "fed-147258369",
-    name: "Federal Vault Enterprises",
-    registrationNumber: "147258369",
-    jurisdiction: "FEDERAL",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2022-02-28",
-    source: "ISED_FEDERAL"
-  },
-  {
-    id: "ont-741852963",
-    name: "Eastern Ontario Vault Corporation",
-    registrationNumber: "741852963", 
-    jurisdiction: "ONTARIO",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2019-06-12",
-    source: "ONTARIO_REGISTRY"
-  },
-  {
-    id: "fed-369258147",
-    name: "National Vault Services Inc.",
-    registrationNumber: "369258147",
-    jurisdiction: "FEDERAL",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2020-09-04",
-    source: "ISED_FEDERAL"
-  },
-  {
-    id: "fed-951753852",
-    name: "Canadian Digital Vault Co.",
-    registrationNumber: "951753852",
-    jurisdiction: "FEDERAL",
-    status: "DISSOLVED",
-    type: "CORPORATION",
-    incorporationDate: "2017-11-20",
-    source: "BUSINESS_REGISTRIES"
-  },
-  {
-    id: "ont-753159852",
-    name: "Toronto Vault Technologies",
-    registrationNumber: "753159852",
-    jurisdiction: "ONTARIO",
-    status: "ACTIVE",
-    type: "CORPORATION",
-    incorporationDate: "2021-01-25",
-    source: "ONTARIO_REGISTRY"
-  }
-];
+// The real API endpoint
+const SEARCH_API_URL = "https://searchapi.mrasservice.ca/Search/api/v1/search";
 
-// Simulate network delay
+// Function to convert API response to our CompanySuggestion format
+const convertApiResultsToCompanySuggestions = (apiResults: any[]): CompanySuggestion[] => {
+  return apiResults.map(item => ({
+    id: item.identifier || `cbr-${Math.random().toString(36).substring(2, 11)}`,
+    name: item.businessName || item.legalName || item.title || "",
+    jurisdiction: determineJurisdiction(item.jurisdiction),
+    registrationNumber: item.identifier || "",
+    source: "BUSINESS_REGISTRIES"
+  }));
+};
+
+// Helper to map API jurisdiction to our format
+const determineJurisdiction = (jurisdiction?: string): Company['jurisdiction'] => {
+  if (!jurisdiction) return "FEDERAL";
+  
+  const normalized = jurisdiction.toUpperCase();
+  
+  if (normalized.includes("ONTARIO") || normalized === "ON") {
+    return "ONTARIO";
+  } else if (normalized.includes("ALBERTA") || normalized === "AB") {
+    return "ALBERTA";
+  } else if (normalized.includes("BRITISH COLUMBIA") || normalized === "BC") {
+    return "BRITISH_COLUMBIA";
+  } else if (normalized.includes("MANITOBA") || normalized === "MB") {
+    return "MANITOBA";
+  } else if (normalized.includes("NEW BRUNSWICK") || normalized === "NB") {
+    return "NEW_BRUNSWICK";
+  } else if (normalized.includes("NEWFOUNDLAND") || normalized === "NL") {
+    return "NEWFOUNDLAND";
+  } else if (normalized.includes("NOVA SCOTIA") || normalized === "NS") {
+    return "NOVA_SCOTIA";
+  } else if (normalized.includes("PRINCE EDWARD ISLAND") || normalized === "PE") {
+    return "PRINCE_EDWARD_ISLAND";
+  } else if (normalized.includes("QUEBEC") || normalized === "QC") {
+    return "QUEBEC";
+  } else if (normalized.includes("SASKATCHEWAN") || normalized === "SK") {
+    return "SASKATCHEWAN";
+  } else if (normalized.includes("NORTHWEST TERRITORIES") || normalized === "NT") {
+    return "NORTHWEST_TERRITORIES";
+  } else if (normalized.includes("NUNAVUT") || normalized === "NU") {
+    return "NUNAVUT";
+  } else if (normalized.includes("YUKON") || normalized === "YT") {
+    return "YUKON";
+  } else {
+    return "FEDERAL";
+  }
+};
+
+// Simulates network delay for realistic behavior
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Simulates searching from multiple registry sources with pagination
+// Search using the real API
 export const searchCompanies = async (options: SearchOptions): Promise<SearchResult> => {
-  console.log("Searching for:", options);
+  console.log("Searching with options:", options);
   
   if (!options.query?.trim()) {
     return { companies: [], total: 0, hasMore: false };
   }
   
-  // Simulate API call delay with variable timing to mimic real-world behavior
-  const searchDelay = Math.random() * 300 + 200;
-  await delay(searchDelay);
-  
-  const normalizedQuery = options.query.toLowerCase().trim();
-  
-  // Filter by query and jurisdictions if provided
-  let filteredCompanies = MOCK_COMPANIES.filter(company => {
-    const nameMatch = company.name.toLowerCase().includes(normalizedQuery);
-    const jurisdictionMatch = !options.jurisdictions?.length || 
-      options.jurisdictions.includes(company.jurisdiction);
-    const statusMatch = !options.statuses?.length || 
-      options.statuses.includes(company.status);
+  try {
+    // Construct query params
+    const params = new URLSearchParams({
+      fq: `keyword:{${options.query}}`,
+      lang: 'en',
+      queryaction: 'fieldquery',
+      sortfield: 'score',
+      sortorder: 'desc'
+    });
+
+    // Add pagination if provided
+    if (options.limit) {
+      params.append('rows', options.limit.toString());
+    }
+    if (options.offset) {
+      params.append('start', options.offset.toString());
+    }
+
+    // Make the API request
+    const response = await fetch(`${SEARCH_API_URL}?${params.toString()}`);
     
-    return nameMatch && jurisdictionMatch && statusMatch;
-  });
-  
-  // Calculate pagination
-  const total = filteredCompanies.length;
-  const limit = options.limit || 5;
-  const offset = options.offset || 0;
-  
-  // Get paginated results
-  const paginatedResults = filteredCompanies
-    .slice(offset, offset + limit)
-    .map(({ id, name, jurisdiction, registrationNumber, source }) => ({
-      id,
-      name,
-      jurisdiction,
-      registrationNumber,
-      source
-    }));
-  
-  // Determine if there are more results
-  const hasMore = offset + limit < total;
-  
-  // Return formatted results
-  return {
-    companies: paginatedResults,
-    total,
-    hasMore
-  };
+    if (!response.ok) {
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log("API Response:", data);
+
+    // Extract results and convert to our format
+    const apiResults = data.response?.docs || [];
+    const total = data.response?.numFound || 0;
+    
+    const companies = convertApiResultsToCompanySuggestions(apiResults);
+    
+    // Calculate if there are more results
+    const limit = options.limit || 5;
+    const offset = options.offset || 0;
+    const hasMore = offset + companies.length < total;
+    
+    return {
+      companies,
+      total,
+      hasMore
+    };
+  } catch (error) {
+    console.error("Error searching companies:", error);
+    throw error;
+  }
 };
 
+// For company details, we'll use the mock data for now since the API doesn't have endpoints for individual companies
+// In a real implementation, you would fetch this from a company details endpoint
 export const getCompanyById = async (id: string): Promise<Company | null> => {
   console.log("Fetching company details for ID:", id);
   
@@ -198,68 +122,57 @@ export const getCompanyById = async (id: string): Promise<Company | null> => {
   const fetchDelay = Math.random() * 300 + 200;
   await delay(fetchDelay);
   
-  // Generate a simulated source-specific response delay
-  // In real-world, different registries would have different response times
-  if (id.startsWith("fed-")) {
-    await delay(100); // Federal registry is faster in this simulation
-  } else if (id.startsWith("ont-")) {
-    await delay(300); // Ontario registry is slower in this simulation
-  }
-  
-  const company = MOCK_COMPANIES.find(c => c.id === id) || null;
-  
-  // Simulate occasional error for realistic behavior
-  if (Math.random() < 0.05) {
-    throw new Error("Registry service temporarily unavailable");
-  }
+  // In a real implementation, you would fetch the company details from an API
+  // For now, we'll create a placeholder company
+  const company: Company = {
+    id,
+    name: id.includes("cbr-") ? "Business from Canada Registry" : "Company Name",
+    registrationNumber: id.replace("cbr-", ""),
+    jurisdiction: id.includes("ont-") ? "ONTARIO" : "FEDERAL",
+    status: "ACTIVE",
+    type: "CORPORATION",
+    incorporationDate: new Date().toISOString().split('T')[0],
+    source: id.includes("cbr-") ? "BUSINESS_REGISTRIES" : id.includes("ont-") ? "ONTARIO_REGISTRY" : "ISED_FEDERAL"
+  };
   
   return company;
 };
 
-// This function would simulate fetching from the ISED Federal Corporate registry
+// These functions would be updated to use real API endpoints if they become available
 export const searchFederalRegistry = async (query: string, limit = 5): Promise<CompanySuggestion[]> => {
   console.log("Searching Federal Registry for:", query);
-  await delay(350); // Simulate slightly longer delay for this source
   
-  return MOCK_COMPANIES
-    .filter(company => 
-      company.source === "ISED_FEDERAL" && 
-      company.name.toLowerCase().includes(query.toLowerCase())
-    )
-    .slice(0, limit)
-    .map(({ id, name, jurisdiction, registrationNumber, source }) => ({
-      id, name, jurisdiction, registrationNumber, source
-    }));
+  // For now, use the main search function with a jurisdictions filter
+  const result = await searchCompanies({
+    query,
+    jurisdictions: ["FEDERAL"],
+    limit
+  });
+  
+  return result.companies;
 };
 
-// This function would simulate fetching from Ontario's corporate registry
 export const searchOntarioRegistry = async (query: string, limit = 5): Promise<CompanySuggestion[]> => {
   console.log("Searching Ontario Registry for:", query);
-  await delay(250);
   
-  return MOCK_COMPANIES
-    .filter(company => 
-      company.source === "ONTARIO_REGISTRY" && 
-      company.name.toLowerCase().includes(query.toLowerCase())
-    )
-    .slice(0, limit)
-    .map(({ id, name, jurisdiction, registrationNumber, source }) => ({
-      id, name, jurisdiction, registrationNumber, source
-    }));
+  // For now, use the main search function with a jurisdictions filter
+  const result = await searchCompanies({
+    query,
+    jurisdictions: ["ONTARIO"],
+    limit
+  });
+  
+  return result.companies;
 };
 
-// This function would simulate fetching from Canada's Business Registries
 export const searchBusinessRegistries = async (query: string, limit = 5): Promise<CompanySuggestion[]> => {
   console.log("Searching Business Registries for:", query);
-  await delay(400); // Simulate longer delay for this source
   
-  return MOCK_COMPANIES
-    .filter(company => 
-      company.source === "BUSINESS_REGISTRIES" && 
-      company.name.toLowerCase().includes(query.toLowerCase())
-    )
-    .slice(0, limit)
-    .map(({ id, name, jurisdiction, registrationNumber, source }) => ({
-      id, name, jurisdiction, registrationNumber, source
-    }));
+  // This is the one we're actually implementing
+  const result = await searchCompanies({
+    query,
+    limit
+  });
+  
+  return result.companies;
 };

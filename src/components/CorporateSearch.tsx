@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, ChevronDown, Loader2, Filter } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
@@ -193,7 +192,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
           <input
             ref={inputRef}
             type="search"
-            placeholder="Search for Ontario or Federal corporations..."
+            placeholder="Search for companies in Canada Business Registry..."
             value={searchQuery}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
@@ -233,7 +232,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
                     <span>Showing {results.length} of {totalResults} results</span>
                     <div className="flex items-center gap-1">
                       <Filter className="h-3.5 w-3.5" />
-                      <span>Database search</span>
+                      <span>Canada Business Registry</span>
                     </div>
                   </div>
                 </div>
