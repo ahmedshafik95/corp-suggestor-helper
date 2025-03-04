@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, ChevronDown, Loader2, Filter, ArrowLeft } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
@@ -8,6 +7,7 @@ import SearchSkeleton from "./SearchSkeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { useDebounce } from '@/hooks/use-debounce';
 import { Button } from "@/components/ui/button";
+import CompanyInfoForm from "./CompanyInfoForm";
 
 interface CorporateSearchProps {
   onCompanySelect?: (company: Company) => void;
@@ -23,6 +23,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   const [totalResults, setTotalResults] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [showCompanyForm, setShowCompanyForm] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -42,8 +43,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   }, []);
 
   useEffect(() => {
-    // Skip search if a company is already selected to prevent 
-    // dropdown from reopening after selection
     if (selectedCompany) return;
     
     const fetchResults = async () => {
@@ -96,9 +95,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     const value = e.target.value;
     setSearchQuery(value);
     
-    // When user changes input after selection, clear the selected company
     if (selectedCompany && value !== selectedCompany.name) {
       setSelectedCompany(null);
+      setShowCompanyForm(false);
     }
     
     if (!value.trim()) {
@@ -107,6 +106,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
       setTotalResults(0);
       setHasMore(false);
       setSearchError(null);
+      setShowCompanyForm(false);
     }
     
     if (value.trim() && !isOpen && !selectedCompany) {
@@ -115,7 +115,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   };
 
   const handleInputFocus = () => {
-    // Don't open dropdown if company is already selected
     if (searchQuery.trim() && results.length > 0 && !selectedCompany) {
       setIsOpen(true);
     }
@@ -130,9 +129,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
         setSelectedCompany(company);
         setSearchQuery(company.name);
         onCompanySelect?.(company);
-        // Close dropdown and clear results when company is selected
         setIsOpen(false);
         setResults([]);
+        setShowCompanyForm(true);
       }
     } catch (error) {
       console.error("Error fetching company details:", error);
@@ -154,6 +153,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     setHasMore(false);
     setSearchError(null);
     setIsOpen(false);
+    setShowCompanyForm(false);
     inputRef.current?.focus();
   };
 
@@ -197,6 +197,14 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     }
   };
 
+  if (showCompanyForm && selectedCompany) {
+    return <CompanyInfoForm company={selectedCompany} onBack={() => {
+      setShowCompanyForm(false);
+      setSelectedCompany(null);
+      setSearchQuery("");
+    }} />;
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto relative" ref={containerRef}>
       <div className="flex flex-col space-y-8">
@@ -219,7 +227,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Search for your company</h2>
           
-          <div className="flex gap-3">
+          <div className="flex w-full gap-3">
             <div className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
               <input
                 ref={inputRef}
@@ -236,7 +244,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
             
             <Button 
               onClick={handleSearch}
-              className="bg-[#0F172A] hover:bg-[#1E293B] text-white px-8 py-4 text-lg font-medium rounded-lg"
+              className="bg-[#0F172A] hover:bg-[#1E293B] text-white px-8 py-4 h-auto text-lg font-medium rounded-lg"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
@@ -246,7 +254,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
             </Button>
           </div>
           
-          {/* Only show dropdown if not a selected company */}
           {isOpen && !selectedCompany && (
             <div className="border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 shadow-lg max-h-[320px] overflow-y-auto overscroll-contain">
               {isLoading && results.length === 0 ? (
@@ -300,92 +307,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
           )}
         </div>
       </div>
-      
-      {selectedCompany && (
-        <div className="mt-8 glass-panel rounded-xl p-6 animate-fade-in">
-          <h2 className="text-xl font-semibold mb-4">{selectedCompany.name}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <span className="text-sm text-gray-500 w-32">Jurisdiction:</span>
-                <span className="font-medium">{selectedCompany.jurisdiction.replace('_', ' ')}</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-sm text-gray-500 w-32">Reg. Number:</span>
-                <span className="font-medium">{selectedCompany.registrationNumber}</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-sm text-gray-500 w-32">Status:</span>
-                <span className="font-medium flex items-center">
-                  <span 
-                    className={`w-2 h-2 rounded-full mr-1.5 ${
-                      selectedCompany.status === 'ACTIVE' 
-                        ? 'bg-green-500' 
-                        : selectedCompany.status === 'INACTIVE' 
-                          ? 'bg-yellow-500' 
-                          : 'bg-red-500'
-                    }`}
-                  ></span>
-                  {selectedCompany.status.replace('_', ' ')}
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <span className="text-sm text-gray-500 w-32">Type:</span>
-                <span className="font-medium">{selectedCompany.type.replace(/_/g, ' ')}</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-sm text-gray-500 w-32">Incorporated:</span>
-                <span className="font-medium">
-                  {new Date(selectedCompany.incorporationDate).toLocaleDateString()}
-                </span>
-              </div>
-              {selectedCompany.businessNumber && (
-                <div className="flex items-center">
-                  <span className="text-sm text-gray-500 w-32">Business #:</span>
-                  <span className="font-medium">{selectedCompany.businessNumber}</span>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {selectedCompany.address && (
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-              <h3 className="text-sm font-medium mb-2">Registered Address</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {selectedCompany.address.street}, {selectedCompany.address.city}, {selectedCompany.address.province}, {selectedCompany.address.postalCode}
-              </p>
-            </div>
-          )}
-          
-          {selectedCompany.directors && selectedCompany.directors.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-              <h3 className="text-sm font-medium mb-2">Directors</h3>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                {selectedCompany.directors.map((director, index) => (
-                  <li key={index} className="flex">
-                    <span className="font-medium">{director.name}</span>
-                    {director.position && (
-                      <span className="ml-2 text-gray-500">({director.position})</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
-            <p>
-              Source: {selectedCompany.source === 'ISED_FEDERAL' 
-                ? 'Federal Corporate Registry (ISED-ISDE)' 
-                : selectedCompany.source === 'ONTARIO_REGISTRY'
-                  ? 'Ontario Business Registry'
-                  : "Canada's Business Registries"}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
