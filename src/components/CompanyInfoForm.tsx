@@ -67,6 +67,7 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
 
   return (
     <div className="w-full max-w-4xl mx-auto">
+      {/* Only the top ProgressBar is kept */}
       <ProgressBar currentStep={3} totalSteps={3} />
       
       <div className="flex items-center mb-8">
