@@ -209,25 +209,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   if (showMagicalLoader) {
     return (
       <div className="w-full max-w-4xl mx-auto relative">
-        <div className="flex flex-col space-y-8">
-          <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              className="p-0 mr-2 hover:bg-transparent"
-              onClick={() => {
-                setShowMagicalLoader(false);
-                setSelectedCompany(null);
-                setSearchQuery("");
-              }}
-              aria-label="Back"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-4xl font-bold">Processing</h1>
-          </div>
-          
-          <MagicalLoader />
-        </div>
+        <h2 className="text-2xl font-semibold mb-8">Processing</h2>
+        <MagicalLoader />
       </div>
     );
   }
@@ -242,106 +225,86 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
 
   return (
     <div className="w-full max-w-4xl mx-auto relative" ref={containerRef}>
-      <div className="flex flex-col space-y-8">
-        <div className="flex items-center">
-          <Button 
-            variant="ghost" 
-            className="p-0 mr-2 hover:bg-transparent"
-            aria-label="Back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-4xl font-bold">Let's find your company</h1>
+      <h2 className="text-xl font-semibold mb-4">Search for your company</h2>
+      
+      <div className="flex w-full gap-3 mb-4">
+        <div className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
+          <input
+            ref={inputRef}
+            type="search"
+            placeholder="Legal name or Corporation number 1234567890"
+            value={searchQuery}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
+            className="block w-full px-4 py-4 focus:outline-none focus:ring-0 border-0 bg-transparent text-base placeholder:text-gray-400"
+            aria-label="Search for a company"
+            autoComplete="off"
+          />
         </div>
         
-        <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
-          You'll need the legal name or Corporation number to find your company below. 
-          We'll automatically retrieve all the information needed for the next steps.
-        </p>
-        
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Search for your company</h2>
-          
-          <div className="flex w-full gap-3">
-            <div className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
-              <input
-                ref={inputRef}
-                type="search"
-                placeholder="Legal name or Corporation number 1234567890"
-                value={searchQuery}
-                onChange={handleInputChange}
-                onFocus={handleInputFocus}
-                className="block w-full px-4 py-4 focus:outline-none focus:ring-0 border-0 bg-transparent text-base placeholder:text-gray-400"
-                aria-label="Search for a company"
-                autoComplete="off"
-              />
-            </div>
-            
-            <Button 
-              onClick={handleSearch}
-              className="bg-[#0F172A] hover:bg-[#1E293B] text-white px-8 py-4 h-auto text-lg font-medium rounded-lg"
-            >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-              ) : (
-                "Search"
-              )}
-            </Button>
-          </div>
-          
-          {isOpen && !selectedCompany && (
-            <div className="border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 shadow-lg max-h-[320px] overflow-y-auto overscroll-contain">
-              {isLoading && results.length === 0 ? (
-                <SearchSkeleton count={3} />
-              ) : searchError ? (
-                <div className="py-6 text-center text-red-500">
-                  {searchError}
-                </div>
-              ) : results.length > 0 ? (
-                <>
-                  <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="flex justify-between items-center">
-                      <span>Showing {results.length} of {totalResults} results</span>
-                      <div className="flex items-center gap-1">
-                        <Filter className="h-3.5 w-3.5" />
-                        <span>Canada Business Registry</span>
-                      </div>
-                    </div>
-                  </div>
-                  {results.map(result => (
-                    <SearchResult
-                      key={result.id}
-                      result={result}
-                      searchQuery={searchQuery}
-                      onSelect={handleSelectResult}
-                    />
-                  ))}
-                  {hasMore && (
-                    <button 
-                      onClick={loadMoreResults} 
-                      className="w-full py-2 text-sm text-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <span className="flex items-center justify-center gap-1">
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          Loading...
-                        </span>
-                      ) : (
-                        'Load more results'
-                      )}
-                    </button>
-                  )}
-                </>
-              ) : searchQuery.trim().length >= 2 ? (
-                <div className="py-6 text-center text-gray-500">
-                  No companies found matching your search.
-                </div>
-              ) : null}
-            </div>
+        <Button 
+          onClick={handleSearch}
+          className="bg-[#0F172A] hover:bg-[#1E293B] text-white px-8 py-4 h-auto text-lg font-medium rounded-lg"
+        >
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+          ) : (
+            "Search"
           )}
-        </div>
+        </Button>
       </div>
+      
+      {isOpen && !selectedCompany && (
+        <div className="border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 shadow-lg max-h-[320px] overflow-y-auto overscroll-contain">
+          {isLoading && results.length === 0 ? (
+            <SearchSkeleton count={3} />
+          ) : searchError ? (
+            <div className="py-6 text-center text-red-500">
+              {searchError}
+            </div>
+          ) : results.length > 0 ? (
+            <>
+              <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 dark:bg-gray-800/50">
+                <div className="flex justify-between items-center">
+                  <span>Showing {results.length} of {totalResults} results</span>
+                  <div className="flex items-center gap-1">
+                    <Filter className="h-3.5 w-3.5" />
+                    <span>Canada Business Registry</span>
+                  </div>
+                </div>
+              </div>
+              {results.map(result => (
+                <SearchResult
+                  key={result.id}
+                  result={result}
+                  searchQuery={searchQuery}
+                  onSelect={handleSelectResult}
+                />
+              ))}
+              {hasMore && (
+                <button 
+                  onClick={loadMoreResults} 
+                  className="w-full py-2 text-sm text-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-1">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Loading...
+                    </span>
+                  ) : (
+                    'Load more results'
+                  )}
+                </button>
+              )}
+            </>
+          ) : searchQuery.trim().length >= 2 ? (
+            <div className="py-6 text-center text-gray-500">
+              No companies found matching your search.
+            </div>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 };
