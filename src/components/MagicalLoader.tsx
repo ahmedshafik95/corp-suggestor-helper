@@ -1,13 +1,14 @@
 
 import React from "react";
 import { Loader2 } from "lucide-react";
-import { Box, Flex, Text, Heading, Spinner, VStack, HStack, keyframes } from "@chakra-ui/react";
+import { Box, Flex, Text, Heading, Spinner, VStack, HStack, keyframes as emotionKeyframes } from "@chakra-ui/react";
 
 interface MagicalLoaderProps {
   message?: string;
 }
 
-const pulse = keyframes`
+// Define keyframes using Emotion's keyframes
+const pulse = emotionKeyframes`
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 `;
