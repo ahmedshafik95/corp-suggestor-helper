@@ -1,25 +1,11 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Building, Users, UserPlus, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const BusinessEntitySelection = () => {
+const LocationSelectionPage = () => {
   const navigate = useNavigate();
-
-  const handleEntitySelect = (entityType: string) => {
-    switch (entityType) {
-      case "corporation":
-        navigate("/location");
-        break;
-      case "co-operative":
-      case "sole-proprietorship":
-        navigate("/waitlist");
-        break;
-      default:
-        break;
-    }
-  };
 
   return (
     <div className="flex min-h-screen">
@@ -52,15 +38,6 @@ const BusinessEntitySelection = () => {
             <span className="bg-white/20 rounded-full px-4 py-2 text-sm backdrop-blur-sm">
               Cashback on card spend
             </span>
-            <span className="bg-white/20 rounded-full px-4 py-2 text-sm backdrop-blur-sm">
-              The best FX rates
-            </span>
-            <span className="bg-white/20 rounded-full px-4 py-2 text-sm backdrop-blur-sm">
-              Multi-currency accounts
-            </span>
-            <span className="bg-white/20 rounded-full px-4 py-2 text-sm backdrop-blur-sm">
-              No personal guarantee needed
-            </span>
           </div>
         </div>
 
@@ -71,46 +48,54 @@ const BusinessEntitySelection = () => {
         </div>
       </div>
 
-      {/* Right Side - Entity Selection */}
+      {/* Right Side - Location Selection */}
       <div className="w-full lg:w-7/12 flex items-center justify-center p-6">
         <div className="w-full max-w-xl">
+          <button 
+            onClick={() => navigate("/")}
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-8"
+          >
+            <ArrowLeft className="h-5 w-5 mr-1" />
+            <span>Back</span>
+          </button>
+
           <h1 className="text-3xl md:text-4xl font-bold mb-10">
-            What's your business entity?
+            Where is your business based?
           </h1>
 
           <div className="space-y-4">
             <Button
               variant="outline"
-              onClick={() => handleEntitySelect("corporation")}
+              onClick={() => navigate("/company-search")}
               className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
               <span className="flex items-center gap-3">
-                <Building className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-                <span>Corporation</span>
+                <span className="text-xl">🇨🇦</span>
+                <span>Canada (excluding Quebec)</span>
               </span>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </Button>
 
             <Button
               variant="outline"
-              onClick={() => handleEntitySelect("co-operative")}
+              onClick={() => navigate("/waitlist/quebec")}
               className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
               <span className="flex items-center gap-3">
-                <Users className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-                <span>Co-operative (for profit and not-for-profit)</span>
+                <span className="text-xl">⚜️</span>
+                <span>Quebec</span>
               </span>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </Button>
 
             <Button
               variant="outline"
-              onClick={() => handleEntitySelect("sole-proprietorship")}
+              onClick={() => navigate("/waitlist/international")}
               className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
               <span className="flex items-center gap-3">
-                <UserPlus className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-                <span>Sole-proprietorship and partnership</span>
+                <span className="text-xl">🌎</span>
+                <span>Anywhere else in the world</span>
               </span>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </Button>
@@ -121,4 +106,4 @@ const BusinessEntitySelection = () => {
   );
 };
 
-export default BusinessEntitySelection;
+export default LocationSelectionPage;
