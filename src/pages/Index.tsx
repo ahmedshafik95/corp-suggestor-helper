@@ -9,7 +9,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-6 md:p-8 lg:p-12">
+    <div className="min-h-screen flex flex-col p-6 md:p-8 lg:p-12 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
       <div className="max-w-4xl w-full mx-auto">
         <CorporateSearch onCompanySelect={handleCompanySelect} />
       </div>

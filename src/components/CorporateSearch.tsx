@@ -4,6 +4,7 @@ import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
 import { searchCompanies, getCompanyById } from "@/services/searchService";
 import SearchResult from "./SearchResult";
 import SearchSkeleton from "./SearchSkeleton";
+import MagicalLoader from "./MagicalLoader";
 import { useToast } from "@/components/ui/use-toast";
 import { useDebounce } from '@/hooks/use-debounce';
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   const [hasMore, setHasMore] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
+  const [showMagicalLoader, setShowMagicalLoader] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -123,18 +125,25 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   const handleSelectResult = async (result: CompanySuggestion) => {
     try {
       setIsLoading(true);
+      setShowMagicalLoader(true);
+      setIsOpen(false);
+      
       const company = await getCompanyById(result.id);
       
       if (company) {
         setSelectedCompany(company);
         setSearchQuery(company.name);
         onCompanySelect?.(company);
-        setIsOpen(false);
         setResults([]);
-        setShowCompanyForm(true);
+        
+        setTimeout(() => {
+          setShowMagicalLoader(false);
+          setShowCompanyForm(true);
+        }, 1500);
       }
     } catch (error) {
       console.error("Error fetching company details:", error);
+      setShowMagicalLoader(false);
       toast({
         title: "Registry Error",
         description: "Failed to fetch company details from registry. The service may be temporarily unavailable.",
@@ -196,6 +205,32 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
       });
     }
   };
+
+  if (showMagicalLoader) {
+    return (
+      <div className="w-full max-w-4xl mx-auto relative">
+        <div className="flex flex-col space-y-8">
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              className="p-0 mr-2 hover:bg-transparent"
+              onClick={() => {
+                setShowMagicalLoader(false);
+                setSelectedCompany(null);
+                setSearchQuery("");
+              }}
+              aria-label="Back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-4xl font-bold">Processing</h1>
+          </div>
+          
+          <MagicalLoader />
+        </div>
+      </div>
+    );
+  }
 
   if (showCompanyForm && selectedCompany) {
     return <CompanyInfoForm company={selectedCompany} onBack={() => {
