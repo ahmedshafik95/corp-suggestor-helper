@@ -3,9 +3,37 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import TestimonialsCarousel from "@/components/Testimonial";
 
 const LocationSelectionPage = () => {
   const navigate = useNavigate();
+
+  // Testimonial data
+  const testimonials = [
+    {
+      quote: "We needed a better card and spend management solution to serve everyone faster and deliver a better experience for end users.",
+      author: "Josh Pickles",
+      position: "Head of Global Strategic Sourcing and Procurement",
+      company: "DoorDash",
+      rating: 5,
+      logoSrc: "https://cdn.worldvectorlogo.com/logos/doordash-1.svg"
+    },
+    {
+      quote: "The ah-ha moment for me as a finance leader was — I can put everything in Venn. If spending is approaching limits in one area, I know in real time and can talk to leaders about possible tradeoffs.",
+      author: "Andrew Maier",
+      position: "Head of Finance",
+      company: "Superhuman",
+      rating: 5,
+      logoSrc: "https://superhuman.com/static/favicon/safari-pinned-tab.svg"
+    },
+    {
+      quote: "Venn's platform has streamlined our financial operations and given us unprecedented visibility into our spending.",
+      author: "Sarah Johnson",
+      position: "CFO",
+      company: "TechStart Inc.",
+      rating: 5
+    }
+  ];
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
@@ -41,10 +69,9 @@ const LocationSelectionPage = () => {
           </div>
         </div>
 
-        <div className="relative z-10">
-          <p className="text-white/70 text-sm">
-            Trusted by 3,000+ Canadian businesses
-          </p>
+        {/* Testimonial section */}
+        <div className="relative z-10 mt-6">
+          <TestimonialsCarousel testimonials={testimonials} />
         </div>
       </div>
 
