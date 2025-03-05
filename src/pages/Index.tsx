@@ -18,10 +18,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-6 md:p-8 lg:p-12 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
-      <div className="max-w-4xl w-full mx-auto">
-        <ProgressBar currentStep={2} totalSteps={3} />
-        
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
+      <ProgressBar currentStep={2} totalSteps={3} />
+      
+      <div className="px-6 md:px-8 lg:px-12 pb-12 max-w-4xl w-full mx-auto">
         <div className="flex items-center mb-8">
           <button 
             onClick={handleBack}
@@ -32,9 +32,9 @@ const Index = () => {
           </button>
         </div>
         
-        <h1 className="text-4xl font-bold mb-8">Let's find your company</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6">Tell us about your company</h1>
         
-        <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
+        <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
           You'll need the legal name or Corporation number to find your company below. 
           We'll automatically retrieve all the information needed for the next steps.
         </p>
@@ -42,7 +42,7 @@ const Index = () => {
         <CorporateSearch onCompanySelect={handleCompanySelect} onBack={handleBack} />
       </div>
       
-      <footer className="mt-16 text-center text-gray-500 text-sm">
+      <footer className="mt-auto py-8 text-center text-gray-500 text-sm">
         <p>© {new Date().getFullYear()} Canada Business Registry Search. All rights reserved.</p>
       </footer>
     </div>
