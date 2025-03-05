@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Company } from "@/types/company";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import AddressSearch, { Address } from "./AddressSearch";
 
 interface CompanyInfoFormProps {
   company: Company;
@@ -19,13 +20,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
     operatingName: "",
     corporationNumber: company.registrationNumber || "",
     incorporationDate: company.incorporationDate ? new Date(company.incorporationDate).toISOString().split('T')[0] : "",
-    email: "",
     street: company.address?.street || "",
     unit: "",
     city: company.address?.city || "",
     country: company.address?.province === "QUEBEC" ? "Canada" : "Canada",
     postalCode: company.address?.postalCode || "",
-    province: company.address?.province.replace(/_/g, " ") || ""
+    province: company.address?.province.replace(/_/g, " ") || "",
+    fullAddress: ""
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +34,19 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleAddressSelect = (address: Address) => {
+    setFormData(prev => ({
+      ...prev,
+      street: address.street,
+      unit: address.unit || "",
+      city: address.city,
+      province: address.province,
+      postalCode: address.postalCode,
+      country: address.country,
+      fullAddress: address.fullAddress
     }));
   };
 
@@ -131,18 +145,12 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
         </div>
         
         <div className="space-y-2">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="address" className="block text-sm font-medium text-gray-700">
             Search address
           </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            placeholder="pietro.schirano@gmail.com"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            required
+          <AddressSearch 
+            onAddressSelect={handleAddressSelect} 
+            defaultValue={formData.fullAddress}
           />
         </div>
         
@@ -157,7 +165,6 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               name="street"
               value={formData.street}
               onChange={handleInputChange}
-              placeholder="3010 Eglinton Avenue"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               required
             />
@@ -189,7 +196,6 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               name="city"
               value={formData.city}
               onChange={handleInputChange}
-              placeholder="Toronto"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               required
             />
@@ -205,7 +211,6 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               name="country"
               value={formData.country}
               onChange={handleInputChange}
-              placeholder="Canada"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               required
             />
@@ -238,7 +243,6 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               name="province"
               value={formData.province}
               onChange={handleInputChange}
-              placeholder="Ontario"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               required
             />
