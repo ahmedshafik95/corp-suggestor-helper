@@ -39,7 +39,7 @@ const Index = () => {
           We'll automatically retrieve all the information needed for the next steps.
         </p>
         
-        <CorporateSearch onCompanySelect={handleCompanySelect} />
+        <CorporateSearch onCompanySelect={handleCompanySelect} onBack={handleBack} />
       </div>
       
       <footer className="mt-16 text-center text-gray-500 text-sm">

@@ -9,13 +9,16 @@ import { useToast } from "@/components/ui/use-toast";
 import { useDebounce } from '@/hooks/use-debounce';
 import { Button } from "@/components/ui/button";
 import CompanyInfoForm from "./CompanyInfoForm";
+import { useNavigate } from "react-router-dom";
 
 interface CorporateSearchProps {
   onCompanySelect?: (company: Company) => void;
+  onBack?: () => void;
 }
 
-const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) => {
+const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBack }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<CompanySuggestion[]>([]);
@@ -206,6 +209,20 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
     }
   };
 
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate("/");
+    }
+  };
+
+  const handleCompanyFormBack = () => {
+    setShowCompanyForm(false);
+    setSelectedCompany(null);
+    setSearchQuery("");
+  };
+
   if (showMagicalLoader) {
     return (
       <div className="w-full max-w-4xl mx-auto relative">
@@ -216,11 +233,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect }) =>
   }
 
   if (showCompanyForm && selectedCompany) {
-    return <CompanyInfoForm company={selectedCompany} onBack={() => {
-      setShowCompanyForm(false);
-      setSelectedCompany(null);
-      setSearchQuery("");
-    }} />;
+    return <CompanyInfoForm company={selectedCompany} onBack={handleCompanyFormBack} />;
   }
 
   return (

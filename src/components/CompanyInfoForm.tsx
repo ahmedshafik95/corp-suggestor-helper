@@ -1,8 +1,11 @@
+
 import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { Company } from "@/types/company";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import AddressSearch, { Address } from "./AddressSearch";
+import ProgressBar from "./ProgressBar";
 
 interface CompanyInfoFormProps {
   company: Company;
@@ -64,6 +67,18 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
 
   return (
     <div className="w-full max-w-4xl mx-auto">
+      <ProgressBar currentStep={3} totalSteps={3} />
+      
+      <div className="flex items-center mb-8">
+        <button 
+          onClick={onBack}
+          className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mr-4"
+        >
+          <ArrowLeft className="h-5 w-5 mr-1" />
+          <span>Back</span>
+        </button>
+      </div>
+      
       <h1 className="text-4xl font-bold mb-6">Company information</h1>
       
       <p className="text-lg text-gray-600 mb-8">
