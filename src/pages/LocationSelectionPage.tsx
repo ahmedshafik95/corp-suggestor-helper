@@ -8,7 +8,7 @@ const LocationSelectionPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen flex-col lg:flex-row">
       {/* Left Side - Marketing Panel */}
       <div className="hidden lg:flex lg:w-5/12 bg-gradient-to-b from-emerald-600 to-emerald-800 p-10 text-white flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -49,17 +49,17 @@ const LocationSelectionPage = () => {
       </div>
 
       {/* Right Side - Location Selection */}
-      <div className="w-full lg:w-7/12 flex items-center justify-center p-6">
+      <div className="w-full lg:w-7/12 flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-xl">
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-8"
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6 sm:mb-8"
           >
             <ArrowLeft className="h-5 w-5 mr-1" />
             <span>Back</span>
           </button>
 
-          <h1 className="text-3xl md:text-4xl font-bold mb-10">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-10">
             Where is your business based?
           </h1>
 
@@ -67,37 +67,37 @@ const LocationSelectionPage = () => {
             <Button
               variant="outline"
               onClick={() => navigate("/company-search")}
-              className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
+              className="w-full justify-between p-4 sm:p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
-              <span className="flex items-center gap-3">
-                <span className="text-xl">🇨🇦</span>
+              <span className="flex items-center gap-2 sm:gap-3">
+                <span className="text-xl shrink-0">🇨🇦</span>
                 <span>Canada (excluding Quebec)</span>
               </span>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
             </Button>
 
             <Button
               variant="outline"
               onClick={() => navigate("/waitlist/quebec")}
-              className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
+              className="w-full justify-between p-4 sm:p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
-              <span className="flex items-center gap-3">
-                <span className="text-xl">⚜️</span>
+              <span className="flex items-center gap-2 sm:gap-3">
+                <span className="text-xl shrink-0">⚜️</span>
                 <span>Quebec</span>
               </span>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
             </Button>
 
             <Button
               variant="outline"
               onClick={() => navigate("/waitlist/international")}
-              className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
+              className="w-full justify-between p-4 sm:p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
-              <span className="flex items-center gap-3">
-                <span className="text-xl">🌎</span>
+              <span className="flex items-center gap-2 sm:gap-3">
+                <span className="text-xl shrink-0">🌎</span>
                 <span>Anywhere else in the world</span>
               </span>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
             </Button>
           </div>
         </div>

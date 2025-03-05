@@ -22,7 +22,7 @@ const BusinessEntitySelection = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen flex-col lg:flex-row">
       {/* Left Side - Marketing Panel */}
       <div className="hidden lg:flex lg:w-5/12 bg-gradient-to-b from-emerald-600 to-emerald-800 p-10 text-white flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -72,9 +72,9 @@ const BusinessEntitySelection = () => {
       </div>
 
       {/* Right Side - Entity Selection */}
-      <div className="w-full lg:w-7/12 flex items-center justify-center p-6">
+      <div className="w-full lg:w-7/12 flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-xl">
-          <h1 className="text-3xl md:text-4xl font-bold mb-10">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-10">
             What's your business entity?
           </h1>
 
@@ -82,37 +82,37 @@ const BusinessEntitySelection = () => {
             <Button
               variant="outline"
               onClick={() => handleEntitySelect("corporation")}
-              className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
+              className="w-full justify-between p-4 sm:p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
-              <span className="flex items-center gap-3">
-                <Building className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+              <span className="flex items-center gap-2 sm:gap-3">
+                <Building className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600 dark:text-gray-400 shrink-0" />
                 <span>Corporation</span>
               </span>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
             </Button>
 
             <Button
               variant="outline"
               onClick={() => handleEntitySelect("co-operative")}
-              className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
+              className="w-full justify-between p-4 sm:p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
-              <span className="flex items-center gap-3">
-                <Users className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-                <span>Co-operative (for profit and not-for-profit)</span>
+              <span className="flex items-center gap-2 sm:gap-3 text-left">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600 dark:text-gray-400 shrink-0" />
+                <span className="line-clamp-2 sm:line-clamp-1">Co-operative (for profit and not-for-profit)</span>
               </span>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight className="h-5 w-5 text-gray-400 ml-2 shrink-0" />
             </Button>
 
             <Button
               variant="outline"
               onClick={() => handleEntitySelect("sole-proprietorship")}
-              className="w-full justify-between p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
+              className="w-full justify-between p-4 sm:p-6 text-base font-medium border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-gray-900/50 transition-all"
             >
-              <span className="flex items-center gap-3">
-                <UserPlus className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-                <span>Sole-proprietorship and partnership</span>
+              <span className="flex items-center gap-2 sm:gap-3 text-left">
+                <UserPlus className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600 dark:text-gray-400 shrink-0" />
+                <span className="line-clamp-2 sm:line-clamp-1">Sole-proprietorship and partnership</span>
               </span>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight className="h-5 w-5 text-gray-400 ml-2 shrink-0" />
             </Button>
           </div>
         </div>

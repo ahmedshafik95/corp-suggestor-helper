@@ -30,7 +30,7 @@ const WaitlistPage = ({
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen flex-col lg:flex-row">
       {/* Left Side - Marketing Panel */}
       <div className="hidden lg:flex lg:w-5/12 bg-gradient-to-b from-emerald-600 to-emerald-800 p-10 text-white flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -71,18 +71,18 @@ const WaitlistPage = ({
       </div>
 
       {/* Right Side - Waitlist Form */}
-      <div className="w-full lg:w-7/12 flex items-center justify-center p-6">
+      <div className="w-full lg:w-7/12 flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-xl">
           <button 
             onClick={() => navigate("/")}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-8"
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6 sm:mb-8"
           >
             <ArrowLeft className="h-5 w-5 mr-1" />
             <span>Back</span>
           </button>
 
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">{title}</h1>
-          <p className="text-lg text-gray-600 mb-8">{description}</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">{title}</h1>
+          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">{description}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -92,7 +92,7 @@ const WaitlistPage = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full p-4"
+                className="w-full p-3 sm:p-4"
               />
             </div>
             <Button type="submit" className="w-full">Submit</Button>
