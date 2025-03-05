@@ -5,6 +5,7 @@ import CorporateSearch from "@/components/CorporateSearch";
 import ProgressBar from "@/components/ProgressBar";
 import { Company } from "@/types/company";
 import { ArrowLeft } from "lucide-react";
+import { Box, Container, Flex, Heading, Text, Button } from "@chakra-ui/react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,34 +19,38 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
+    <Flex direction="column" minH="100vh" bg="white">
       <ProgressBar currentStep={2} totalSteps={3} />
       
-      <div className="px-6 md:px-8 lg:px-12 pb-12 max-w-4xl w-full mx-auto">
-        <div className="flex items-center mb-8">
-          <button 
+      <Container px={{ base: 6, md: 8, lg: 12 }} pb={12} maxW="4xl">
+        <Flex alignItems="center" mb={8}>
+          <Button 
             onClick={handleBack}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mr-4"
+            variant="ghost"
+            leftIcon={<ArrowLeft size={20} />}
+            color="gray.600"
+            _hover={{ color: "gray.900" }}
           >
-            <ArrowLeft className="h-5 w-5 mr-1" />
-            <span>Back</span>
-          </button>
-        </div>
+            Back
+          </Button>
+        </Flex>
         
-        <h1 className="text-3xl md:text-4xl font-bold mb-6">Tell us about your company</h1>
+        <Heading as="h1" fontSize={{ base: "3xl", md: "4xl" }} fontWeight="bold" mb={6}>
+          Tell us about your company
+        </Heading>
         
-        <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
+        <Text fontSize="lg" color="gray.700" mb={8} lineHeight="relaxed">
           You'll need the legal name or Corporation number to find your company below. 
           We'll automatically retrieve all the information needed for the next steps.
-        </p>
+        </Text>
         
         <CorporateSearch onCompanySelect={handleCompanySelect} onBack={handleBack} />
-      </div>
+      </Container>
       
-      <footer className="mt-auto py-8 text-center text-gray-500 text-sm">
-        <p>© {new Date().getFullYear()} Canada Business Registry Search. All rights reserved.</p>
-      </footer>
-    </div>
+      <Box as="footer" mt="auto" py={8} textAlign="center" color="gray.500" fontSize="sm">
+        <Text>© {new Date().getFullYear()} Canada Business Registry Search. All rights reserved.</Text>
+      </Box>
+    </Flex>
   );
 };
 

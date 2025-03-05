@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Box, Flex, Text, Button, HStack, useColorModeValue } from "@chakra-ui/react";
 
 interface ProgressBarProps {
   currentStep: number;
@@ -9,33 +9,40 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ currentStep, totalSteps }) => {
+  const progressWidth = `${(currentStep / totalSteps) * 100}%`;
+  const bgColor = useColorModeValue('gray.200', 'gray.700');
+  const progressColor = useColorModeValue('blue.600', 'blue.400');
+
   return (
-    <div className="w-full mb-8">
-      <div className="w-full flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-600">
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
+    <Box w="full" mb={8}>
+      <Flex w="full" alignItems="center" justifyContent="space-between" mb={6}>
+        <Flex alignItems="center" gap={2}>
+          <Button variant="ghost" size="md" p={2} color="gray.600">
+            <Menu size={20} />
+            <Text srOnly>Toggle menu</Text>
           </Button>
-          <span className="text-lg font-medium">Venn</span>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center">
-            <span className="text-sm font-medium">Steps</span>
-          </div>
-          <Button variant="outline" size="sm" className="h-9 px-4 rounded-full">
+          <Text fontSize="lg" fontWeight="medium">Venn</Text>
+        </Flex>
+        <Flex alignItems="center" gap={4}>
+          <Text fontSize="sm" fontWeight="medium">Steps</Text>
+          <Button variant="outline" size="sm" borderRadius="full" px={4} h={9}>
             Help
           </Button>
-        </div>
-      </div>
+        </Flex>
+      </Flex>
       
-      <div className="w-full h-1 bg-gray-200 mb-8">
-        <div 
-          className="h-full bg-blue-600 transition-all duration-300 ease-in-out"
-          style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+      <Box w="full" h="1px" bg={bgColor} mb={8} position="relative">
+        <Box 
+          h="full" 
+          bg={progressColor} 
+          transition="width 0.3s ease-in-out" 
+          w={progressWidth}
+          position="absolute"
+          left={0}
+          top={0}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Box, Skeleton, VStack, Flex } from "@chakra-ui/react";
 
 interface SearchSkeletonProps {
   count?: number;
@@ -7,14 +8,16 @@ interface SearchSkeletonProps {
 
 const SearchSkeleton: React.FC<SearchSkeletonProps> = ({ count = 3 }) => {
   return (
-    <div className="w-full">
+    <Box w="full">
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="search-result-item flex flex-col gap-2">
-          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2" />
-        </div>
+        <Box key={index} p={4} borderBottomWidth={index < count - 1 ? "1px" : 0}>
+          <VStack align="start" spacing={2}>
+            <Skeleton height="20px" width="75%" />
+            <Skeleton height="16px" width="50%" />
+          </VStack>
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 };
 

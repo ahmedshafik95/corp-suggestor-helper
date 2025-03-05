@@ -7,9 +7,22 @@ import SearchSkeleton from "./SearchSkeleton";
 import MagicalLoader from "./MagicalLoader";
 import { useToast } from "@/components/ui/use-toast";
 import { useDebounce } from '@/hooks/use-debounce';
-import { Button } from "@/components/ui/button";
 import CompanyInfoForm from "./CompanyInfoForm";
 import { useNavigate } from "react-router-dom";
+import { 
+  Box, 
+  Flex, 
+  Heading, 
+  Input, 
+  InputGroup, 
+  InputLeftElement, 
+  Button, 
+  Spinner,
+  Text,
+  VStack,
+  Divider,
+  IconButton
+} from "@chakra-ui/react";
 
 interface CorporateSearchProps {
   onCompanySelect?: (company: Company) => void;
@@ -225,10 +238,10 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
 
   if (showMagicalLoader) {
     return (
-      <div className="w-full max-w-4xl mx-auto relative">
-        <h2 className="text-2xl font-semibold mb-8">Processing</h2>
+      <Box w="full" maxW="4xl" mx="auto" position="relative">
+        <Heading as="h2" fontSize="2xl" fontWeight="semibold" mb={8}>Processing</Heading>
         <MagicalLoader />
-      </div>
+      </Box>
     );
   }
 
@@ -237,88 +250,115 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto relative" ref={containerRef}>
-      <h2 className="text-xl font-semibold mb-4">Search for your company</h2>
+    <Box w="full" maxW="4xl" mx="auto" position="relative" ref={containerRef}>
+      <Heading as="h2" fontSize="xl" fontWeight="semibold" mb={4}>Search for your company</Heading>
       
-      <div className="flex w-full gap-3 mb-4">
-        <div className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
-          <input
-            ref={inputRef}
-            type="search"
-            placeholder="Legal name or Corporation number 1234567890"
-            value={searchQuery}
-            onChange={handleInputChange}
-            onFocus={handleInputFocus}
-            className="block w-full px-4 py-4 focus:outline-none focus:ring-0 border-0 bg-transparent text-base placeholder:text-gray-400"
-            aria-label="Search for a company"
-            autoComplete="off"
-          />
-        </div>
+      <Flex w="full" gap={3} mb={4}>
+        <Box flex="1" borderWidth="1px" borderColor="gray.300" borderRadius="lg" overflow="hidden" bg="white">
+          <InputGroup size="lg">
+            <InputLeftElement pointerEvents="none">
+              <Search size={20} color="gray.400" />
+            </InputLeftElement>
+            <Input
+              ref={inputRef}
+              type="search"
+              placeholder="Legal name or Corporation number 1234567890"
+              value={searchQuery}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
+              border="none"
+              _focus={{ outline: "none", ring: 0 }}
+              py={4}
+            />
+          </InputGroup>
+        </Box>
         
-        <Button 
+        <Button
           onClick={handleSearch}
-          className="bg-[#0F172A] hover:bg-[#1E293B] text-white px-8 py-4 h-auto text-lg font-medium rounded-lg"
+          bg="#0F172A"
+          _hover={{ bg: "#1E293B" }}
+          color="white"
+          px={8}
+          py={4}
+          h="auto"
+          fontSize="lg"
+          fontWeight="medium"
+          borderRadius="lg"
+          isLoading={isLoading}
+          loadingText="Searching"
+          spinner={<Spinner size="sm" />}
         >
-          {isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-          ) : (
-            "Search"
-          )}
+          Search
         </Button>
-      </div>
+      </Flex>
       
       {isOpen && !selectedCompany && (
-        <div className="border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 shadow-lg max-h-[320px] overflow-y-auto overscroll-contain">
+        <Box
+          borderWidth="1px"
+          borderColor="gray.200"
+          borderRadius="lg"
+          bg="white"
+          shadow="lg"
+          maxH="320px"
+          overflowY="auto"
+        >
           {isLoading && results.length === 0 ? (
             <SearchSkeleton count={3} />
           ) : searchError ? (
-            <div className="py-6 text-center text-red-500">
+            <Box py={6} textAlign="center" color="red.500">
               {searchError}
-            </div>
+            </Box>
           ) : results.length > 0 ? (
             <>
-              <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 dark:bg-gray-800/50">
-                <div className="flex justify-between items-center">
-                  <span>Showing {results.length} of {totalResults} results</span>
-                  <div className="flex items-center gap-1">
-                    <Filter className="h-3.5 w-3.5" />
-                    <span>Canada Business Registry</span>
-                  </div>
-                </div>
-              </div>
-              {results.map(result => (
-                <SearchResult
-                  key={result.id}
-                  result={result}
-                  searchQuery={searchQuery}
-                  onSelect={handleSelectResult}
-                />
-              ))}
+              <Box px={4} py={2} fontSize="xs" color="gray.500" bg="gray.50">
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Text>Showing {results.length} of {totalResults} results</Text>
+                  <Flex alignItems="center" gap={1}>
+                    <Filter size={14} />
+                    <Text>Canada Business Registry</Text>
+                  </Flex>
+                </Flex>
+              </Box>
+              <VStack spacing={0} align="stretch" divider={<Divider />}>
+                {results.map(result => (
+                  <SearchResult
+                    key={result.id}
+                    result={result}
+                    searchQuery={searchQuery}
+                    onSelect={handleSelectResult}
+                  />
+                ))}
+              </VStack>
               {hasMore && (
-                <button 
+                <Button 
                   onClick={loadMoreResults} 
-                  className="w-full py-2 text-sm text-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                  disabled={isLoading}
+                  w="full" 
+                  variant="ghost" 
+                  py={2} 
+                  fontSize="sm" 
+                  color="blue.600" 
+                  _hover={{ bg: "gray.50" }}
+                  isDisabled={isLoading}
                 >
                   {isLoading ? (
-                    <span className="flex items-center justify-center gap-1">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      Loading...
-                    </span>
+                    <Flex alignItems="center" gap={1}>
+                      <Spinner size="xs" />
+                      <Text>Loading...</Text>
+                    </Flex>
                   ) : (
                     'Load more results'
                   )}
-                </button>
+                </Button>
               )}
             </>
           ) : searchQuery.trim().length >= 2 ? (
-            <div className="py-6 text-center text-gray-500">
+            <Box py={6} textAlign="center" color="gray.500">
               No companies found matching your search.
-            </div>
+            </Box>
           ) : null}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

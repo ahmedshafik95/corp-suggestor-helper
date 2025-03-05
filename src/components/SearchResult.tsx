@@ -2,6 +2,7 @@
 import React from "react";
 import { CompanySuggestion } from "@/types/company";
 import { Globe, Library, Building2 } from "lucide-react";
+import { Box, Flex, Text, Icon, HStack, Badge } from "@chakra-ui/react";
 
 interface SearchResultProps {
   result: CompanySuggestion;
@@ -26,7 +27,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
       <>
         {parts.map((part, index) => 
           part.toLowerCase() === highlight.toLowerCase() ? 
-            <span key={index} className="search-highlight">{part}</span> : 
+            <Text as="span" key={index} fontWeight="medium" color="blue.600">{part}</Text> : 
             part
         )}
       </>
@@ -37,13 +38,13 @@ const SearchResult: React.FC<SearchResultProps> = ({
   const getSourceIcon = () => {
     switch (source) {
       case 'ISED_FEDERAL':
-        return <Globe className="h-3.5 w-3.5 text-primary/70" />;
+        return <Globe size={14} />;
       case 'ONTARIO_REGISTRY':
-        return <Building2 className="h-3.5 w-3.5 text-primary/70" />;
+        return <Building2 size={14} />;
       case 'BUSINESS_REGISTRIES':
-        return <Library className="h-3.5 w-3.5 text-primary/70" />;
+        return <Library size={14} />;
       default:
-        return <Globe className="h-3.5 w-3.5 text-primary/70" />;
+        return <Globe size={14} />;
     }
   };
 
@@ -61,25 +62,38 @@ const SearchResult: React.FC<SearchResultProps> = ({
     }
   };
 
+  // Get jurisdiction badge color
+  const getJurisdictionColor = () => {
+    switch (jurisdiction) {
+      case 'ONTARIO':
+        return 'green';
+      case 'FEDERAL':
+        return 'blue';
+      case 'BRITISH_COLUMBIA':
+        return 'purple';
+      case 'ALBERTA':
+        return 'red';
+      default:
+        return 'blue';
+    }
+  };
+
   // Format jurisdiction for display if available
   const getJurisdictionDisplay = () => {
     if (!jurisdiction) return null;
     
-    const color = jurisdiction === 'ONTARIO' 
-      ? 'bg-green-500' 
-      : jurisdiction === 'FEDERAL' 
-        ? 'bg-blue-500' 
-        : jurisdiction === 'BRITISH_COLUMBIA'
-          ? 'bg-purple-500'
-          : jurisdiction === 'ALBERTA'
-            ? 'bg-red-500'
-            : 'bg-primary';
-        
     return (
-      <span className="inline-flex items-center">
-        <span className={`w-2 h-2 rounded-full mr-1.5 opacity-70 ${color}`}></span>
-        {jurisdiction.replace(/_/g, ' ')}
-      </span>
+      <Flex alignItems="center">
+        <Box 
+          w="2px" 
+          h="2px" 
+          borderRadius="full" 
+          mr={1.5} 
+          bg={`${getJurisdictionColor()}.500`} 
+          opacity={0.7}
+        />
+        <Text>{jurisdiction.replace(/_/g, ' ')}</Text>
+      </Flex>
     );
   };
 
@@ -96,23 +110,28 @@ const SearchResult: React.FC<SearchResultProps> = ({
   };
 
   return (
-    <div 
-      className="search-result-item transition-all duration-300 animate-slide-in" 
+    <Box 
+      p={4} 
+      transition="all 0.3s" 
+      _hover={{ bg: "gray.50" }}
+      cursor="pointer"
       onClick={() => onSelect(result)}
     >
-      <h3 className="font-medium text-base mb-1">
+      <Text fontWeight="medium" fontSize="base" mb={1}>
         {getHighlightedText(name, searchQuery)}
-      </h3>
-      <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+      </Text>
+      <Flex alignItems="center" gap={3} fontSize="sm" color="gray.500">
         {getJurisdictionDisplay()}
-        {registrationNumber && <span>#{registrationNumber}</span>}
-        {incorporationDate && <span className="text-xs">Reg: {formatDate(incorporationDate)}</span>}
-        <span className="inline-flex items-center gap-1 text-xs">
-          {getSourceIcon()}
-          <span>{getSourceName()}</span>
-        </span>
-      </div>
-    </div>
+        {registrationNumber && <Text>#{registrationNumber}</Text>}
+        {incorporationDate && <Text fontSize="xs">Reg: {formatDate(incorporationDate)}</Text>}
+        <Flex alignItems="center" gap={1} fontSize="xs">
+          <Box color="blue.600" opacity={0.7}>
+            {getSourceIcon()}
+          </Box>
+          <Text>{getSourceName()}</Text>
+        </Flex>
+      </Flex>
+    </Box>
   );
 };
 
