@@ -1,9 +1,12 @@
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import CorporateSearch from "@/components/CorporateSearch";
 import { Company } from "@/types/company";
 
 const Index = () => {
+  const navigate = useNavigate();
+  
   const handleCompanySelect = (company: Company) => {
     console.log("Selected company:", company);
   };
