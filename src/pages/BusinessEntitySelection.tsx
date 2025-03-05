@@ -26,7 +26,7 @@ const BusinessEntitySelection = () => {
         </div>
 
         <div className="relative z-10">
-          <div className="text-2xl font-bold mb-2">vault</div>
+          <div className="text-2xl font-bold mb-2">Venn</div>
         </div>
 
         <div className="relative z-10 space-y-4">
