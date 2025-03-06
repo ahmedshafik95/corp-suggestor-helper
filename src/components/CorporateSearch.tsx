@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, ChevronDown, Loader2, Filter, ArrowLeft, RefreshCw, ShieldOff } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
@@ -200,7 +199,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       setShowMagicalLoader(false);
       toast({
         title: "Registry Error",
-        description: "Failed to fetch company details. Using demonstration data instead.",
+        description: "Failed to fetch company details. Using demonstration data.",
         variant: "destructive",
       });
     } finally {
@@ -491,7 +490,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
           <div className="absolute top-[-1px] left-0 w-full h-[1px] bg-white/20"></div>
           
           <div className="absolute inset-0 rounded-full overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent opacity-0 group-hover:opacity-100"></div>
             <div className="absolute top-0 left-0 right-0 h-[40%] bg-gradient-to-b from-white/10 to-transparent"></div>
             <div className="absolute -left-1/4 -top-1/2 w-1/2 h-1/2 bg-white/5 rounded-full blur-xl group-hover:animate-pulse"></div>
           </div>
