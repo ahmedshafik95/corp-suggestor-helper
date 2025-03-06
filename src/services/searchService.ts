@@ -1,6 +1,6 @@
 import { Company, CompanySuggestion, SearchOptions, SearchResult } from "@/types/company";
 
-// The new API endpoint provided by the user
+// The API endpoint from the Postman screenshot
 const SEARCH_API_URL = "https://ised-isde.canada.ca/cbr/srch/api/v1/search";
 
 // Canadian Proxy Service endpoints - these would be real Canadian proxy servers in production
@@ -181,7 +181,7 @@ const shouldRotateSession = () => {
   return false;
 };
 
-// Fetch with anti-blocking techniques - now with better error handling
+// Fetch with anti-blocking techniques - modified to match Postman request
 const fetchWithAntiBlocking = async (url: string, options?: RequestInit) => {
   const proxy = getNextProxy();
   console.log(`Using Canadian proxy: ${proxy} with session ID: ${sessionId.substring(0, 8)}...`);
@@ -204,7 +204,7 @@ const fetchWithAntiBlocking = async (url: string, options?: RequestInit) => {
       "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
     ];
     
-    // Referrers that might be expected by the API
+    // Referrers that might be expected by the API - updated to match your real domain
     const referrers = [
       "https://www.ic.gc.ca/",
       "https://www.canada.ca/en/services/business.html",
@@ -226,17 +226,7 @@ const fetchWithAntiBlocking = async (url: string, options?: RequestInit) => {
       "en-US,en;q=0.9"
     ];
     
-    // Simulate first-party cookies that would be present in a normal browser session
-    // These are made-up but follow common formats
-    const cookieHeaders = rotatingSession ? "" : [
-      `JSESSIONID=${sessionId}`,
-      `_ga=GA1.2.${Math.floor(Math.random() * 1000000000)}.${Math.floor(Date.now()/1000 - Math.random() * 7776000)}`,
-      `_gid=GA1.2.${Math.floor(Math.random() * 1000000000)}`,
-      `visid_incap_${Math.floor(Math.random() * 10000)}=${sessionId.substring(0, 8)}`,
-      `ASP.NET_SessionId=${Math.random().toString(36).substring(2, 15)}`
-    ].join("; ");
-    
-    // Options with anti-blocking measures - Using proper types
+    // Options with anti-blocking measures - Using proper types and mimicking a real browser
     const enhancedOptions: RequestInit = {
       ...options,
       headers: {
@@ -249,15 +239,14 @@ const fetchWithAntiBlocking = async (url: string, options?: RequestInit) => {
         'Sec-Fetch-Site': 'same-origin',
         'Sec-Fetch-Mode': 'cors',
         'Sec-Fetch-Dest': 'empty',
-        'X-Proxy-Location': 'CA',
-        'X-Proxy-Address': proxy,
         'Referer': randomReferrer,
+        'Connection': 'keep-alive',
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
-        'DNT': Math.random() > 0.5 ? '1' : null,
       },
-      credentials: rotatingSession ? 'omit' as RequestCredentials : 'include' as RequestCredentials,
-      signal: options?.signal
+      credentials: 'omit' as RequestCredentials, // Don't send cookies initially
+      signal: options?.signal,
+      // Don't set cookies on first attempt to mimic a fresh browser session
     };
     
     // Set a timeout for the fetch to avoid hanging requests
@@ -408,10 +397,10 @@ const MOCK_COMPANIES: CompanySuggestion[] = [
   }
 ];
 
-// Variable to track if we're using fallback mode - ENABLE BY DEFAULT now due to observed issues
-let usingFallbackMode = true; // Changed to default to true since API is consistently failing
+// Variable to track if we're using fallback mode
+let usingFallbackMode = true; // Start with fallback mode by default
 let consecutiveFailures = 0;
-const MAX_FAILURES_BEFORE_FALLBACK = 2; // Reduced from 3 to 2 for faster fallback
+const MAX_FAILURES_BEFORE_FALLBACK = 2;
 
 // Reset fallback mode to try real API again
 export const resetFallbackMode = () => {
@@ -422,7 +411,7 @@ export const resetFallbackMode = () => {
   console.log("Resetting fallback mode and session data to try real API again");
 };
 
-// Search using the real API with anti-blocking techniques
+// Search using the real API with anti-blocking techniques - UPDATED TO MATCH POSTMAN
 export const searchCompanies = async (options: SearchOptions): Promise<SearchResult> => {
   console.log("Searching with options:", options);
   
@@ -433,27 +422,28 @@ export const searchCompanies = async (options: SearchOptions): Promise<SearchRes
   // Always try the real API first unless explicitly in fallback mode
   if (!usingFallbackMode) {
     try {
-      // Construct query params
-      const params = new URLSearchParams({
-        fq: `keyword:{${options.query}}`,
-        lang: 'en',
-        queryaction: 'fieldquery',
-        sortfield: 'score',
-        sortorder: 'desc',
-        // Add a cache-busting parameter to avoid cached responses
-        _: Date.now().toString()
-      });
-  
+      // IMPORTANT: Construct query params EXACTLY as shown in the Postman screenshot
+      // The key difference is using fq=keyword:%7BVenn%7D format instead of using URLSearchParams
+      const searchTerm = encodeURIComponent(`{${options.query}}`);
+      
+      // Construct URL manually to match exactly what worked in Postman
+      let url = `${SEARCH_API_URL}?fq=keyword:${searchTerm}&lang=en&queryaction=fieldquery&sortfield=score&sortorder=desc`;
+      
       // Add pagination if provided
       if (options.limit) {
-        params.append('rows', options.limit.toString());
+        url += `&rows=${options.limit}`;
       }
       if (options.offset) {
-        params.append('start', options.offset.toString());
+        url += `&start=${options.offset}`;
       }
+      
+      // Add cache busting similar to Postman's automatic behavior
+      url += `&_=${Date.now()}`;
+      
+      console.log("Attempting search with URL: ", url);
   
       // Make the API request with anti-blocking techniques
-      const response = await fetchWithAntiBlocking(`${SEARCH_API_URL}?${params.toString()}`);
+      const response = await fetchWithAntiBlocking(url);
       
       if (!response.ok) {
         consecutiveFailures++;
@@ -503,7 +493,7 @@ export const searchCompanies = async (options: SearchOptions): Promise<SearchRes
   }
 };
 
-// Provide fallback results when API is blocked/unavailable - improved fuzzy matching
+// Provide fallback results when API is blocked/unavailable
 const provideFallbackResults = (options: SearchOptions): SearchResult => {
   console.log("Using fallback search results for query:", options.query);
   

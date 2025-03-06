@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, ChevronDown, Loader2, Filter, ArrowLeft, RefreshCw, ShieldOff } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
@@ -92,8 +93,12 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
           offset: 0
         };
         
+        console.log("Sending search request for:", debouncedQuery);
         const { companies, total, hasMore } = await searchCompanies(searchOptions);
         
+        console.log("Received companies:", companies);
+        
+        // Check if we're getting fallback data
         const isFallbackData = companies.some(c => 
           c.id === "13281230" || c.id === "13281229" || c.id === "9867543" || 
           c.id.startsWith("54321")
@@ -122,7 +127,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         if (companies.length > 0) {
           setIsOpen(true);
         } else if (debouncedQuery.trim().length > 0) {
-          setIsOpen(false);
+          setIsOpen(true); // Show empty results message
         }
       } catch (error) {
         console.error("Error fetching search results:", error);
@@ -254,6 +259,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     }
     
     setIsLoading(true);
+    // Force API refresh by temporarily disabling fallback mode
+    resetFallbackMode();
+    
     searchCompanies({
       query: searchQuery,
       limit: 5,
@@ -263,9 +271,21 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       setTotalResults(result.total);
       setHasMore(result.hasMore);
       
+      console.log("Search results:", result);
+      
       if (result.companies.length > 0) {
         setIsOpen(true);
+        // Check if using fallback data
+        const usingFallbackData = result.companies.some(c => 
+          c.id === "13281230" || c.id === "13281229" || c.id === "9867543" || 
+          c.id.startsWith("54321")
+        );
+        
+        if (usingFallbackData) {
+          setUsingFallbackMode(true);
+        }
       } else {
+        setIsOpen(true); // Show empty results message
         toast({
           title: "No Results",
           description: "No companies found matching your search criteria.",
@@ -322,6 +342,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         setTotalResults(result.total);
         setHasMore(result.hasMore);
         
+        console.log("Retry search results:", result);
+        
         const usingRealData = !result.companies.some(c => 
           c.id === "13281230" || c.id === "13281229" || c.id === "9867543" || 
           c.id.startsWith("54321")
@@ -337,6 +359,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         
         if (result.companies.length > 0) {
           setIsOpen(true);
+        } else {
+          setIsOpen(true); // Show empty state
         }
       }).catch(error => {
         toast({
@@ -410,7 +434,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
               onClick={handleRetryRealAPI}
               isLoading={isLoading}
             >
-              New Session
+              Try New Session
             </Button>
             <CloseButton 
               onClick={() => setUsingFallbackMode(false)} 
