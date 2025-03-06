@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Company } from "@/types/company";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import AddressSearch, { Address } from "./AddressSearch";
 import ProgressBar from "./ProgressBar";
@@ -14,19 +16,58 @@ interface CompanyInfoFormProps {
 const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) => {
   const { toast } = useToast();
   
+  // Parse province from API data to make it more readable
+  const formatProvince = (province: string): string => {
+    if (!province) return "";
+    
+    // Remove underscores and capitalize first letter of each word
+    return province.replace(/_/g, " ")
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+  
+  // Extract city from address or from Reg_office_city in the API response
+  const getCity = (): string => {
+    if (company.address?.city) return company.address.city;
+    
+    // The city might be in the Reg_office_city from the API
+    const apiData = (company as any)._apiData;
+    if (apiData?.Reg_office_city) return apiData.Reg_office_city;
+    
+    return "";
+  };
+  
+  // Extract address details from API data
+  const parseAddressFromCompany = (): {
+    street: string;
+    city: string;
+    province: string;
+    postalCode: string;
+  } => {
+    return {
+      street: company.address?.street || "",
+      city: getCity(),
+      province: formatProvince(company.address?.province || company.jurisdiction || ""),
+      postalCode: company.address?.postalCode || ""
+    };
+  };
+  
+  const addressData = parseAddressFromCompany();
+  
   // Initialize form state with company data
   const [formData, setFormData] = useState({
     legalName: company.name || "",
     operatingName: "",
     corporationNumber: company.registrationNumber || "",
     incorporationDate: company.incorporationDate ? new Date(company.incorporationDate).toISOString().split('T')[0] : "",
-    street: company.address?.street || "",
+    street: addressData.street || "",
     unit: "",
-    city: company.address?.city || "",
-    country: company.address?.province === "QUEBEC" ? "Canada" : "Canada",
-    postalCode: company.address?.postalCode || "",
-    province: company.address?.province.replace(/_/g, " ") || "",
-    fullAddress: ""
+    city: addressData.city || "",
+    country: "Canada",
+    postalCode: addressData.postalCode || "",
+    province: addressData.province || "",
+    fullAddress: `${addressData.street}, ${addressData.city}, ${addressData.province}, Canada`
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,13 +132,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               <label htmlFor="legalName" className="block text-sm font-medium text-gray-700">
                 Business legal name
               </label>
-              <input
+              <Input
                 type="text"
                 id="legalName"
                 name="legalName"
                 value={formData.legalName}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full"
                 required
               />
             </div>
@@ -106,13 +147,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               <label htmlFor="operatingName" className="block text-sm font-medium text-gray-700">
                 Operating name
               </label>
-              <input
+              <Input
                 type="text"
                 id="operatingName"
                 name="operatingName"
                 value={formData.operatingName}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full"
               />
             </div>
           </div>
@@ -121,13 +162,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
             <label htmlFor="corporationNumber" className="block text-sm font-medium text-gray-700">
               Corporation number
             </label>
-            <input
+            <Input
               type="text"
               id="corporationNumber"
               name="corporationNumber"
               value={formData.corporationNumber}
               onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full"
               required
             />
           </div>
@@ -136,13 +177,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
             <label htmlFor="incorporationDate" className="block text-sm font-medium text-gray-700">
               Date of incorporation
             </label>
-            <input
+            <Input
               type="date"
               id="incorporationDate"
               name="incorporationDate"
               value={formData.incorporationDate}
               onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full"
               required
             />
           </div>
@@ -162,13 +203,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               <label htmlFor="street" className="block text-sm font-medium text-gray-700">
                 Street
               </label>
-              <input
+              <Input
                 type="text"
                 id="street"
                 name="street"
                 value={formData.street}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full"
                 required
               />
             </div>
@@ -177,13 +218,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
                 Unit / floor number
               </label>
-              <input
+              <Input
                 type="text"
                 id="unit"
                 name="unit"
                 value={formData.unit}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full"
               />
             </div>
           </div>
@@ -193,13 +234,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               <label htmlFor="city" className="block text-sm font-medium text-gray-700">
                 City
               </label>
-              <input
+              <Input
                 type="text"
                 id="city"
                 name="city"
                 value={formData.city}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full"
                 required
               />
             </div>
@@ -208,13 +249,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               <label htmlFor="country" className="block text-sm font-medium text-gray-700">
                 Country
               </label>
-              <input
+              <Input
                 type="text"
                 id="country"
                 name="country"
                 value={formData.country}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full"
                 required
               />
             </div>
@@ -225,13 +266,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700">
                 Postal Code
               </label>
-              <input
+              <Input
                 type="text"
                 id="postalCode"
                 name="postalCode"
                 value={formData.postalCode}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full"
                 required
               />
             </div>
@@ -240,13 +281,13 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
               <label htmlFor="province" className="block text-sm font-medium text-gray-700">
                 Province
               </label>
-              <input
+              <Input
                 type="text"
                 id="province"
                 name="province"
                 value={formData.province}
                 onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full"
                 required
               />
             </div>

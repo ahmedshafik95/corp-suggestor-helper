@@ -43,7 +43,8 @@ const convertApiResultsToCompanySuggestions = (apiResults: any[]): CompanySugges
       source: "BUSINESS_REGISTRIES" as const,
       incorporationDate: item.Date_Incorporated || "",
       status: item.Status_State || "",
-      directors: getKnownDirectorsForCompany(item.Juri_ID || "")
+      directors: getKnownDirectorsForCompany(item.Juri_ID || ""),
+      _apiData: item
     }))
     // Filter out Quebec companies and non-active companies
     .filter(company => 
@@ -624,7 +625,8 @@ export const getCompanyById = async (id: string): Promise<Company | null> => {
       status,
       type: "CORPORATION",
       incorporationDate: matchingSuggestion?.incorporationDate || new Date().toISOString().split('T')[0],
-      source: matchingSuggestion?.source || (id.includes("cbr-") ? "BUSINESS_REGISTRIES" : id.includes("ont-") ? "ONTARIO_REGISTRY" : "ISED_FEDERAL")
+      source: matchingSuggestion?.source || (id.includes("cbr-") ? "BUSINESS_REGISTRIES" : id.includes("ont-") ? "ONTARIO_REGISTRY" : "ISED_FEDERAL"),
+      _apiData: matchingSuggestion?._apiData || null
     };
     
     // Add directors for federal companies, but only if we have real data
@@ -637,11 +639,61 @@ export const getCompanyById = async (id: string): Promise<Company | null> => {
       // If we don't have directors, leave it undefined rather than providing placeholders
     }
     
+    // Try to extract address information if available in the API response
+    const apiData = matchingSuggestion?._apiData;
+    if (apiData) {
+      company.address = {
+        street: apiData.street_address || "",
+        city: apiData.Reg_office_city || apiData.City || "",
+        province: determineProvince(apiData.Reg_office_province || apiData.Jurisdiction || ""),
+        postalCode: apiData.postal_code || ""
+      };
+    }
+    
+    console.log("Selected company:", company);
     return company;
   } catch (error) {
     console.error("Error fetching company details, using fallback:", error);
     return provideFallbackCompanyDetails(id);
   }
+};
+
+// Helper function to determine province from API data
+const determineProvince = (provinceData: string): string => {
+  if (!provinceData) return "";
+  
+  const normalized = provinceData.toUpperCase();
+  
+  const provinceMap: {[key: string]: string} = {
+    'AB': 'ALBERTA',
+    'BC': 'BRITISH_COLUMBIA',
+    'MB': 'MANITOBA',
+    'NB': 'NEW_BRUNSWICK',
+    'NL': 'NEWFOUNDLAND',
+    'NS': 'NOVA_SCOTIA',
+    'NT': 'NORTHWEST_TERRITORIES',
+    'NU': 'NUNAVUT',
+    'ON': 'ONTARIO',
+    'PE': 'PRINCE_EDWARD_ISLAND',
+    'QC': 'QUEBEC',
+    'SK': 'SASKATCHEWAN',
+    'YT': 'YUKON'
+  };
+  
+  // Check if it's a code
+  if (provinceMap[normalized]) {
+    return provinceMap[normalized];
+  }
+  
+  // Otherwise try to match the full name
+  for (const [code, fullName] of Object.entries(provinceMap)) {
+    if (normalized.includes(fullName.replace('_', ' '))) {
+      return fullName;
+    }
+  }
+  
+  // If no match found, return the original
+  return provinceData;
 };
 
 // Provide fallback company details when API is blocked/unavailable

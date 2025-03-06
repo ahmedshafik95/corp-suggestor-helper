@@ -19,6 +19,7 @@ export interface Company {
     position?: string;
   }[];
   source: 'ISED_FEDERAL' | 'ONTARIO_REGISTRY' | 'BUSINESS_REGISTRIES'; // Track which registry the data came from
+  _apiData?: any; // Store the original API response data
 }
 
 export type CompanySuggestion = Pick<Company, 'id' | 'name' | 'jurisdiction' | 'registrationNumber' | 'source'> & {
@@ -28,6 +29,7 @@ export type CompanySuggestion = Pick<Company, 'id' | 'name' | 'jurisdiction' | '
     name: string;
     position?: string;
   }[];
+  _apiData?: any; // Store the original API response data
 };
 
 export interface SearchOptions {
