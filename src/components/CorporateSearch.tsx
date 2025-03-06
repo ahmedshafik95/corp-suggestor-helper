@@ -21,7 +21,12 @@ import {
   Text,
   VStack,
   Divider,
-  IconButton
+  IconButton,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  CloseButton
 } from "@chakra-ui/react";
 
 interface CorporateSearchProps {
@@ -42,6 +47,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   const [searchError, setSearchError] = useState<string | null>(null);
   const [showCompanyForm, setShowCompanyForm] = useState(false);
   const [showMagicalLoader, setShowMagicalLoader] = useState(false);
+  const [usingFallbackMode, setUsingFallbackMode] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -84,6 +90,19 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         
         const { companies, total, hasMore } = await searchCompanies(searchOptions);
         
+        const isFallbackData = companies.some(c => 
+          c.id === "13281230" || c.id === "13281229" || c.id === "9867543"
+        );
+        
+        if (isFallbackData && !usingFallbackMode) {
+          setUsingFallbackMode(true);
+          toast({
+            title: "Using Demonstration Mode",
+            description: "Registry services are currently unavailable. Using demonstration data instead.",
+            duration: 6000,
+          });
+        }
+        
         setResults(companies);
         setTotalResults(total);
         setHasMore(hasMore);
@@ -95,11 +114,13 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         }
       } catch (error) {
         console.error("Error fetching search results:", error);
-        setSearchError("Failed to connect to registry services. Please try again.");
+        setSearchError("Unable to connect to registry services. Using demonstration data instead.");
+        setUsingFallbackMode(true);
         toast({
           title: "Search Error",
-          description: "Failed to fetch search results. Please try again.",
+          description: "Failed to connect to registry services. Using demonstration data instead.",
           variant: "destructive",
+          duration: 6000,
         });
       } finally {
         setIsLoading(false);
@@ -107,7 +128,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     };
 
     fetchResults();
-  }, [debouncedQuery, toast, selectedCompany]);
+  }, [debouncedQuery, toast, selectedCompany, usingFallbackMode]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -162,7 +183,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       setShowMagicalLoader(false);
       toast({
         title: "Registry Error",
-        description: "Failed to fetch company details from registry. The service may be temporarily unavailable.",
+        description: "Failed to fetch company details. Using demonstration data instead.",
         variant: "destructive",
       });
     } finally {
@@ -236,6 +257,10 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     setSearchQuery("");
   };
 
+  const handleCloseAlert = () => {
+    setSearchError(null);
+  };
+
   if (showMagicalLoader) {
     return (
       <Box w="full" maxW="4xl" mx="auto" position="relative">
@@ -253,6 +278,24 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     <Box w="full" maxW="4xl" mx="auto" position="relative" ref={containerRef}>
       <Heading as="h2" fontSize="xl" fontWeight="semibold" mb={4}>Search for your company</Heading>
       
+      {usingFallbackMode && (
+        <Alert status="info" mb={4} borderRadius="md">
+          <AlertIcon />
+          <Box flex="1">
+            <AlertTitle>Using Demonstration Mode</AlertTitle>
+            <AlertDescription>
+              Registry services are currently unavailable. Using demonstration data instead.
+            </AlertDescription>
+          </Box>
+          <CloseButton 
+            position="absolute" 
+            right="8px" 
+            top="8px" 
+            onClick={() => setUsingFallbackMode(false)} 
+          />
+        </Alert>
+      )}
+      
       <Flex w="full" gap={3} mb={4}>
         <Box flex="1" borderWidth="1px" borderColor="gray.300" borderRadius="lg" overflow="hidden" bg="white">
           <InputGroup size="lg">
@@ -264,8 +307,33 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
               type="search"
               placeholder="Legal name or Corporation number 1234567890"
               value={searchQuery}
-              onChange={handleInputChange}
-              onFocus={handleInputFocus}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchQuery(value);
+                
+                if (selectedCompany && value !== selectedCompany.name) {
+                  setSelectedCompany(null);
+                  setShowCompanyForm(false);
+                }
+                
+                if (!value.trim()) {
+                  setSelectedCompany(null);
+                  setResults([]);
+                  setTotalResults(0);
+                  setHasMore(false);
+                  setSearchError(null);
+                  setShowCompanyForm(false);
+                }
+                
+                if (value.trim() && !isOpen && !selectedCompany) {
+                  setIsOpen(true);
+                }
+              }}
+              onFocus={() => {
+                if (searchQuery.trim() && results.length > 0 && !selectedCompany) {
+                  setIsOpen(true);
+                }
+              }}
               border="none"
               _focus={{ outline: "none", ring: 0 }}
               py={4}
@@ -315,7 +383,11 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                   <Text>Showing {results.length} of {totalResults} results</Text>
                   <Flex alignItems="center" gap={1}>
                     <Filter size={14} />
-                    <Text>Canada Business Registry</Text>
+                    {usingFallbackMode ? (
+                      <Text>Demonstration Data</Text>
+                    ) : (
+                      <Text>Canada Business Registry</Text>
+                    )}
                   </Flex>
                 </Flex>
               </Box>
