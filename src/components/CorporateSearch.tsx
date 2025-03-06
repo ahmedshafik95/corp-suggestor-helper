@@ -95,7 +95,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         const { companies, total, hasMore } = await searchCompanies(searchOptions);
         
         const isFallbackData = companies.some(c => 
-          c.id === "13281230" || c.id === "13281229" || c.id === "9867543"
+          c.id === "13281230" || c.id === "13281229" || c.id === "9867543" || 
+          c.id.startsWith("54321")
         );
         
         if (isFallbackData && !usingFallbackMode) {
@@ -243,15 +244,41 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   };
 
   const handleSearch = () => {
-    if (searchQuery.trim().length >= 2) {
-      return;
-    } else {
+    if (searchQuery.trim().length < 2) {
       toast({
         title: "Search Error",
         description: "Please enter at least 2 characters to search.",
         variant: "destructive",
       });
+      return;
     }
+    
+    setIsLoading(true);
+    searchCompanies({
+      query: searchQuery,
+      limit: 5,
+      offset: 0
+    }).then(result => {
+      setResults(result.companies);
+      setTotalResults(result.total);
+      setHasMore(result.hasMore);
+      
+      if (result.companies.length > 0) {
+        setIsOpen(true);
+      } else {
+        toast({
+          title: "No Results",
+          description: "No companies found matching your search criteria.",
+          duration: 3000,
+        });
+      }
+    }).catch(error => {
+      console.error("Search error:", error);
+      setSearchError("Failed to search. Using demonstration data.");
+      setUsingFallbackMode(true);
+    }).finally(() => {
+      setIsLoading(false);
+    });
   };
 
   const handleBack = () => {
@@ -296,7 +323,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         setHasMore(result.hasMore);
         
         const usingRealData = !result.companies.some(c => 
-          c.id === "13281230" || c.id === "13281229" || c.id === "9867543"
+          c.id === "13281230" || c.id === "13281229" || c.id === "9867543" || 
+          c.id.startsWith("54321")
         );
         
         if (usingRealData) {
@@ -392,7 +420,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       )}
       
       <Flex w="full" gap={3} mb={4}>
-        <Box flex="1" borderWidth="1px" borderColor="gray.300" borderRadius="lg" overflow="hidden" bg="white">
+        <Box flex="1" borderWidth="1px" borderColor="gray.300" borderRadius="lg" overflow="hidden" bg="white" position="relative">
           <InputGroup size="lg">
             <InputLeftElement pointerEvents="none">
               <Search size={20} color="gray.400" />
@@ -409,6 +437,20 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
               py={4}
             />
           </InputGroup>
+          {searchQuery && (
+            <IconButton
+              aria-label="Clear search"
+              icon={<X size={16} />}
+              size="sm"
+              variant="ghost"
+              position="absolute"
+              right="2"
+              top="50%"
+              transform="translateY(-50%)"
+              onClick={handleClearSearch}
+              zIndex={2}
+            />
+          )}
         </Box>
         
         <button
@@ -524,7 +566,26 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
             </>
           ) : searchQuery.trim().length >= 2 ? (
             <Box py={6} textAlign="center" color="gray.500">
-              No companies found matching your search.
+              <Text mb={2}>No companies found matching your search.</Text>
+              <Text fontSize="sm" color="gray.400">Try a different company name or registration number.</Text>
+              {!usingFallbackMode ? (
+                <Button 
+                  mt={4} 
+                  size="sm" 
+                  colorScheme="blue"
+                  variant="outline"
+                  onClick={() => {
+                    setUsingFallbackMode(true);
+                    toast({
+                      title: "Switched to Demonstration Mode",
+                      description: "Now using sample company data for searching.",
+                      duration: 3000,
+                    });
+                  }}
+                >
+                  Try Demonstration Data
+                </Button>
+              ) : null}
             </Box>
           ) : null}
         </Box>
