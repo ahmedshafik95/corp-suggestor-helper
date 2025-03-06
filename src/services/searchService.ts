@@ -1,7 +1,8 @@
+
 import { Company, CompanySuggestion, SearchOptions, SearchResult } from "@/types/company";
 
-// The real API endpoint
-const SEARCH_API_URL = "https://searchapi.mrasservice.ca/Search/api/v1/search";
+// The new API endpoint provided by the user
+const SEARCH_API_URL = "https://ised-isde.canada.ca/cbr/srch/api/v1/search";
 
 // Canadian Proxy Service endpoints - these would be real Canadian proxy servers in production
 const CANADIAN_PROXY_ENDPOINTS = [
@@ -236,8 +237,8 @@ const fetchWithAntiBlocking = async (url: string, options?: RequestInit) => {
       `ASP.NET_SessionId=${Math.random().toString(36).substring(2, 15)}`
     ].join("; ");
     
-    // Options with anti-blocking measures
-    const enhancedOptions = {
+    // Options with anti-blocking measures - FIX: Use proper RequestCredentials type
+    const enhancedOptions: RequestInit = {
       ...options,
       headers: {
         ...options?.headers,
@@ -256,8 +257,8 @@ const fetchWithAntiBlocking = async (url: string, options?: RequestInit) => {
         'Pragma': 'no-cache',
         'DNT': Math.random() > 0.5 ? '1' : null,
       },
-      // Make sure we're not sending cookies in rotated sessions
-      credentials: rotatingSession ? 'omit' : 'include',
+      // FIX: Use proper RequestCredentials type instead of string
+      credentials: rotatingSession ? 'omit' as RequestCredentials : 'include' as RequestCredentials,
       signal: options?.signal
     };
     
