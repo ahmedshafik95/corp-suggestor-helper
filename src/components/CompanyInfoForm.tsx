@@ -4,9 +4,10 @@ import { ArrowLeft } from "lucide-react";
 import { Company } from "@/types/company";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import AddressSearch, { Address } from "./AddressSearch";
 import ProgressBar from "./ProgressBar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CompanyInfoFormProps {
   company: Company;
@@ -111,195 +112,214 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
       
       <div className="px-6 md:px-8 lg:px-12 pb-12 max-w-4xl mx-auto w-full">
         <div className="flex items-center mb-8">
-          <button 
+          <Button 
             onClick={onBack}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors mr-4"
+            variant="ghost"
+            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
-            <ArrowLeft className="h-5 w-5 mr-1" />
+            <ArrowLeft className="h-5 w-5 mr-2" />
             <span>Back</span>
-          </button>
+          </Button>
         </div>
         
-        <h1 className="text-3xl md:text-4xl font-bold mb-6">Tell us about your business</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-4">Tell us about your business</h1>
         
         <p className="text-lg text-gray-600 mb-8">
           Venn does not perform any credit checks or require personal guarantees
         </p>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-6">
+          <div className="flex items-center gap-2 text-sm font-medium text-[#1E40AF] mb-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-[#1E40AF]"></div>
+            <span>Business Information</span>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label htmlFor="legalName" className="block text-sm font-medium text-gray-700">
+                  Business legal name
+                </label>
+                <Input
+                  type="text"
+                  id="legalName"
+                  name="legalName"
+                  value={formData.legalName}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="operatingName" className="block text-sm font-medium text-gray-700">
+                  Operating name
+                </label>
+                <Input
+                  type="text"
+                  id="operatingName"
+                  name="operatingName"
+                  value={formData.operatingName}
+                  onChange={handleInputChange}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label htmlFor="corporationNumber" className="block text-sm font-medium text-gray-700">
+                  Corporation number
+                </label>
+                <Input
+                  type="text"
+                  id="corporationNumber"
+                  name="corporationNumber"
+                  value={formData.corporationNumber}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="incorporationDate" className="block text-sm font-medium text-gray-700">
+                  Date of incorporation
+                </label>
+                <Input
+                  type="date"
+                  id="incorporationDate"
+                  name="incorporationDate"
+                  value={formData.incorporationDate}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div className="flex items-center gap-2 text-sm font-medium text-[#1E40AF] mb-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-[#1E40AF]"></div>
+            <span>Business Address</span>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="legalName" className="block text-sm font-medium text-gray-700">
-                Business legal name
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                Search address
               </label>
-              <Input
-                type="text"
-                id="legalName"
-                name="legalName"
-                value={formData.legalName}
-                onChange={handleInputChange}
-                className="w-full"
-                required
+              <AddressSearch 
+                onAddressSelect={handleAddressSelect} 
+                defaultValue={formData.fullAddress}
               />
             </div>
             
-            <div className="space-y-2">
-              <label htmlFor="operatingName" className="block text-sm font-medium text-gray-700">
-                Operating name
-              </label>
-              <Input
-                type="text"
-                id="operatingName"
-                name="operatingName"
-                value={formData.operatingName}
-                onChange={handleInputChange}
-                className="w-full"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <label htmlFor="corporationNumber" className="block text-sm font-medium text-gray-700">
-              Corporation number
-            </label>
-            <Input
-              type="text"
-              id="corporationNumber"
-              name="corporationNumber"
-              value={formData.corporationNumber}
-              onChange={handleInputChange}
-              className="w-full"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label htmlFor="incorporationDate" className="block text-sm font-medium text-gray-700">
-              Date of incorporation
-            </label>
-            <Input
-              type="date"
-              id="incorporationDate"
-              name="incorporationDate"
-              value={formData.incorporationDate}
-              onChange={handleInputChange}
-              className="w-full"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-              Search address
-            </label>
-            <AddressSearch 
-              onAddressSelect={handleAddressSelect} 
-              defaultValue={formData.fullAddress}
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="street" className="block text-sm font-medium text-gray-700">
-                Street
-              </label>
-              <Input
-                type="text"
-                id="street"
-                name="street"
-                value={formData.street}
-                onChange={handleInputChange}
-                className="w-full"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label htmlFor="street" className="block text-sm font-medium text-gray-700">
+                  Street
+                </label>
+                <Input
+                  type="text"
+                  id="street"
+                  name="street"
+                  value={formData.street}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
+                  Unit / floor number
+                </label>
+                <Input
+                  type="text"
+                  id="unit"
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleInputChange}
+                  className="w-full"
+                />
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
-                Unit / floor number
-              </label>
-              <Input
-                type="text"
-                id="unit"
-                name="unit"
-                value={formData.unit}
-                onChange={handleInputChange}
-                className="w-full"
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                City
-              </label>
-              <Input
-                type="text"
-                id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                className="w-full"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-                Country
-              </label>
-              <Input
-                type="text"
-                id="country"
-                name="country"
-                value={formData.country}
-                onChange={handleInputChange}
-                className="w-full"
-                required
-              />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700">
-                Postal Code
-              </label>
-              <Input
-                type="text"
-                id="postalCode"
-                name="postalCode"
-                value={formData.postalCode}
-                onChange={handleInputChange}
-                className="w-full"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                  City
+                </label>
+                <Input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+                  Country
+                </label>
+                <Input
+                  type="text"
+                  id="country"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                />
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <label htmlFor="province" className="block text-sm font-medium text-gray-700">
-                Province
-              </label>
-              <Input
-                type="text"
-                id="province"
-                name="province"
-                value={formData.province}
-                onChange={handleInputChange}
-                className="w-full"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700">
+                  Postal Code
+                </label>
+                <Input
+                  type="text"
+                  id="postalCode"
+                  name="postalCode"
+                  value={formData.postalCode}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="province" className="block text-sm font-medium text-gray-700">
+                  Province
+                </label>
+                <Input
+                  type="text"
+                  id="province"
+                  name="province"
+                  value={formData.province}
+                  onChange={handleInputChange}
+                  className="w-full"
+                  required
+                />
+              </div>
             </div>
-          </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white px-8 py-4 h-auto text-lg font-medium rounded-lg mt-8"
-          >
-            Continue
-          </Button>
-        </form>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white px-8 py-6 h-auto text-lg font-medium rounded-lg mt-8"
+            >
+              Continue
+            </Button>
+          </form>
+        </div>
       </div>
       
       <footer className="mt-auto py-8 text-center text-gray-500 text-sm">
