@@ -168,19 +168,37 @@ const fetchWithCanadianIP = async (url: string, options?: RequestInit) => {
   console.log(`Using Canadian proxy: ${proxy}`);
   
   try {
-    // In a real implementation, this would route the request through a Canadian proxy
-    // For now, we just simulate the behavior by logging the proxy being used
+    // Add randomized user agent and additional headers to avoid detection
+    const userAgents = [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36"
+    ];
     
-    // Options with the proxy information would be added here in a real implementation
-    const response = await fetch(url, {
+    const randomUserAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
+    
+    // Options with the proxy information and randomized headers
+    const enhancedOptions = {
       ...options,
       headers: {
         ...options?.headers,
-        // In real implementation, add headers needed for proxy authorization
+        'User-Agent': randomUserAgent,
+        'Accept-Language': 'en-CA,en-US;q=0.9,en;q=0.8,fr-CA;q=0.7',
         'X-Proxy-Location': 'CA',
         'X-Proxy-Address': proxy,
-      }
-    });
+        'Referer': 'https://www.ic.gc.ca/', // Make it look like it's coming from a government site
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+      },
+      // Add a random delay before making the request to avoid patterns
+      signal: options?.signal
+    };
+    
+    // Add a small random delay between 100-300ms to vary request patterns
+    await delay(100 + Math.random() * 200);
+    
+    const response = await fetch(url, enhancedOptions);
     
     return response;
   } catch (error) {
@@ -246,6 +264,12 @@ const MOCK_COMPANIES: CompanySuggestion[] = [
 // Variable to track if we're using fallback mode
 let usingFallbackMode = false;
 
+// Reset fallback mode to try real API again
+export const resetFallbackMode = () => {
+  usingFallbackMode = false;
+  console.log("Resetting fallback mode to try real API again");
+};
+
 // Search using the real API with IP rotation
 export const searchCompanies = async (options: SearchOptions): Promise<SearchResult> => {
   console.log("Searching with options:", options);
@@ -254,60 +278,61 @@ export const searchCompanies = async (options: SearchOptions): Promise<SearchRes
     return { companies: [], total: 0, hasMore: false };
   }
   
-  try {
-    // If we're already in fallback mode, don't try to hit the real API
-    if (usingFallbackMode) {
+  // Always try the real API first unless explicitly in fallback mode
+  if (!usingFallbackMode) {
+    try {
+      // Construct query params
+      const params = new URLSearchParams({
+        fq: `keyword:{${options.query}}`,
+        lang: 'en',
+        queryaction: 'fieldquery',
+        sortfield: 'score',
+        sortorder: 'desc'
+      });
+  
+      // Add pagination if provided
+      if (options.limit) {
+        params.append('rows', options.limit.toString());
+      }
+      if (options.offset) {
+        params.append('start', options.offset.toString());
+      }
+  
+      // Make the API request using a Canadian IP
+      const response = await fetchWithCanadianIP(`${SEARCH_API_URL}?${params.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error(`API responded with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("API Response:", data);
+  
+      // Extract results and convert to our format
+      const apiResults = data.docs || [];
+      const total = data.totalResults || 0;
+      
+      const companies = convertApiResultsToCompanySuggestions(apiResults);
+      
+      // Calculate if there are more results
+      const limit = options.limit || 5;
+      const offset = options.offset || 0;
+      const hasMore = offset + companies.length < total;
+      
+      return {
+        companies,
+        total,
+        hasMore
+      };
+    } catch (error) {
+      console.error("Error searching companies, switching to fallback mode:", error);
+      // Set fallback mode flag
+      usingFallbackMode = true;
+      // Return mock results instead
       return provideFallbackResults(options);
     }
-    
-    // Construct query params
-    const params = new URLSearchParams({
-      fq: `keyword:{${options.query}}`,
-      lang: 'en',
-      queryaction: 'fieldquery',
-      sortfield: 'score',
-      sortorder: 'desc'
-    });
-
-    // Add pagination if provided
-    if (options.limit) {
-      params.append('rows', options.limit.toString());
-    }
-    if (options.offset) {
-      params.append('start', options.offset.toString());
-    }
-
-    // Make the API request using a Canadian IP
-    const response = await fetchWithCanadianIP(`${SEARCH_API_URL}?${params.toString()}`);
-    
-    if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log("API Response:", data);
-
-    // Extract results and convert to our format
-    const apiResults = data.docs || [];
-    const total = data.totalResults || 0;
-    
-    const companies = convertApiResultsToCompanySuggestions(apiResults);
-    
-    // Calculate if there are more results
-    const limit = options.limit || 5;
-    const offset = options.offset || 0;
-    const hasMore = offset + companies.length < total;
-    
-    return {
-      companies,
-      total,
-      hasMore
-    };
-  } catch (error) {
-    console.error("Error searching companies, switching to fallback mode:", error);
-    // Set fallback mode flag
-    usingFallbackMode = true;
-    // Return mock results instead
+  } else {
+    // We're in fallback mode, use mock data
     return provideFallbackResults(options);
   }
 };

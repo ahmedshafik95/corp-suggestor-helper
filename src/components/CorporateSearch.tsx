@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Search, X, ChevronDown, Loader2, Filter, ArrowLeft } from "lucide-react";
+import { Search, X, ChevronDown, Loader2, Filter, ArrowLeft, RefreshCw } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
-import { searchCompanies, getCompanyById } from "@/services/searchService";
+import { searchCompanies, getCompanyById, resetFallbackMode } from "@/services/searchService";
 import SearchResult from "./SearchResult";
 import SearchSkeleton from "./SearchSkeleton";
 import MagicalLoader from "./MagicalLoader";
@@ -261,6 +261,43 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     setSearchError(null);
   };
 
+  const handleRetryRealAPI = () => {
+    resetFallbackMode();
+    setUsingFallbackMode(false);
+    setSearchError(null);
+    
+    toast({
+      title: "Retrying API Connection",
+      description: "Attempting to connect to registry services with a new connection.",
+      duration: 3000,
+    });
+    
+    if (searchQuery.trim().length >= 2) {
+      setIsLoading(true);
+      searchCompanies({
+        query: searchQuery,
+        limit: 5,
+        offset: 0
+      }).then(result => {
+        setResults(result.companies);
+        setTotalResults(result.total);
+        setHasMore(result.hasMore);
+        
+        if (result.companies.length > 0) {
+          setIsOpen(true);
+        }
+      }).catch(error => {
+        toast({
+          title: "Error",
+          description: "Failed to connect to registry services. Using demonstration data.",
+          variant: "destructive",
+        });
+      }).finally(() => {
+        setIsLoading(false);
+      });
+    }
+  };
+
   if (showMagicalLoader) {
     return (
       <Box w="full" maxW="4xl" mx="auto" position="relative">
@@ -287,12 +324,20 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
               Registry services are currently unavailable. Using demonstration data instead.
             </AlertDescription>
           </Box>
-          <CloseButton 
-            position="absolute" 
-            right="8px" 
-            top="8px" 
-            onClick={() => setUsingFallbackMode(false)} 
-          />
+          <Flex>
+            <Button 
+              leftIcon={<RefreshCw size={16} />}
+              size="sm"
+              colorScheme="blue"
+              mr={2}
+              onClick={handleRetryRealAPI}
+            >
+              Retry
+            </Button>
+            <CloseButton 
+              onClick={() => setUsingFallbackMode(false)} 
+            />
+          </Flex>
         </Alert>
       )}
       
@@ -307,33 +352,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
               type="search"
               placeholder="Legal name or Corporation number 1234567890"
               value={searchQuery}
-              onChange={(e) => {
-                const value = e.target.value;
-                setSearchQuery(value);
-                
-                if (selectedCompany && value !== selectedCompany.name) {
-                  setSelectedCompany(null);
-                  setShowCompanyForm(false);
-                }
-                
-                if (!value.trim()) {
-                  setSelectedCompany(null);
-                  setResults([]);
-                  setTotalResults(0);
-                  setHasMore(false);
-                  setSearchError(null);
-                  setShowCompanyForm(false);
-                }
-                
-                if (value.trim() && !isOpen && !selectedCompany) {
-                  setIsOpen(true);
-                }
-              }}
-              onFocus={() => {
-                if (searchQuery.trim() && results.length > 0 && !selectedCompany) {
-                  setIsOpen(true);
-                }
-              }}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
               border="none"
               _focus={{ outline: "none", ring: 0 }}
               py={4}
@@ -373,8 +393,16 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
           {isLoading && results.length === 0 ? (
             <SearchSkeleton count={3} />
           ) : searchError ? (
-            <Box py={6} textAlign="center" color="red.500">
-              {searchError}
+            <Box py={6} textAlign="center">
+              <Text color="red.500" mb={3}>{searchError}</Text>
+              <Button 
+                leftIcon={<RefreshCw size={16} />}
+                size="sm"
+                colorScheme="blue"
+                onClick={handleRetryRealAPI}
+              >
+                Retry with New Connection
+              </Button>
             </Box>
           ) : results.length > 0 ? (
             <>

@@ -55,7 +55,7 @@ const Testimonial: React.FC<TestimonialProps> = ({
         </Box>
         
         {logoSrc && (
-          <Image src={logoSrc} alt={company} h="24px" objectFit="contain" />
+          <Image src={logoSrc} alt={company} h="12px" objectFit="contain" />
         )}
       </Flex>
     </Box>
