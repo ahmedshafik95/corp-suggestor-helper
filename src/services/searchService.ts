@@ -1,4 +1,3 @@
-
 import { Company, CompanySuggestion, SearchOptions, SearchResult } from "@/types/company";
 
 // The real API endpoint
@@ -13,14 +12,24 @@ const CANADIAN_PROXY_ENDPOINTS = [
   "https://ca-proxy-5.example-proxy.com",
 ];
 
-// Proxy rotation counter
-let proxyCounter = 0;
+// Proxy rotation counter with randomization
+let proxyCounter = Math.floor(Math.random() * CANADIAN_PROXY_ENDPOINTS.length);
 
-// Get the next proxy to use
+// Session identifier to track and rotate
+let sessionId = crypto.randomUUID();
+let requestCounter = 0;
+const MAX_REQUESTS_PER_SESSION = 5;
+
+// Get the next proxy to use with improved rotation strategy
 const getNextProxy = () => {
-  const proxy = CANADIAN_PROXY_ENDPOINTS[proxyCounter];
-  proxyCounter = (proxyCounter + 1) % CANADIAN_PROXY_ENDPOINTS.length;
-  return proxy;
+  // Randomize selection occasionally to avoid predictable patterns
+  if (Math.random() < 0.3) {
+    proxyCounter = Math.floor(Math.random() * CANADIAN_PROXY_ENDPOINTS.length);
+  } else {
+    // Otherwise use sequential rotation
+    proxyCounter = (proxyCounter + 1) % CANADIAN_PROXY_ENDPOINTS.length;
+  }
+  return CANADIAN_PROXY_ENDPOINTS[proxyCounter];
 };
 
 // Function to convert API response to our CompanySuggestion format
@@ -52,8 +61,7 @@ const convertApiResultsToCompanySuggestions = (apiResults: any[]): CompanySugges
     });
 };
 
-// Map of known federal companies and their directors
-// This is a database of real director information
+// Map of known company directors
 const knownCompanyDirectors: Record<string, Array<{name: string, position: string}>> = {
   // For Venn Software Inc.
   "13281230": [
@@ -159,13 +167,30 @@ const determineJurisdiction = (jurisdiction?: string): Company['jurisdiction'] =
   }
 };
 
-// Simulates network delay for realistic behavior
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// Simulates network delay for realistic behavior with variable timing
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, Math.floor(ms * (0.8 + Math.random() * 0.4))));
 
-// Fetch with Canadian IP
-const fetchWithCanadianIP = async (url: string, options?: RequestInit) => {
+// Rotate session data after certain number of requests
+const shouldRotateSession = () => {
+  requestCounter++;
+  if (requestCounter >= MAX_REQUESTS_PER_SESSION) {
+    sessionId = crypto.randomUUID();
+    requestCounter = 0;
+    return true;
+  }
+  return false;
+};
+
+// Fetch with anti-blocking techniques
+const fetchWithAntiBlocking = async (url: string, options?: RequestInit) => {
   const proxy = getNextProxy();
-  console.log(`Using Canadian proxy: ${proxy}`);
+  console.log(`Using Canadian proxy: ${proxy} with session ID: ${sessionId.substring(0, 8)}...`);
+  
+  // Rotate session if needed
+  const rotatingSession = shouldRotateSession();
+  if (rotatingSession) {
+    console.log("Rotating session identifier");
+  }
   
   try {
     // Add randomized user agent and additional headers to avoid detection
@@ -173,30 +198,91 @@ const fetchWithCanadianIP = async (url: string, options?: RequestInit) => {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15",
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36"
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+    ];
+    
+    // Referrers that might be expected by the API
+    const referrers = [
+      "https://www.ic.gc.ca/",
+      "https://www.canada.ca/en/services/business.html",
+      "https://www.ic.gc.ca/app/scr/cc/CorporationsCanada/fdrlCrpSrch.html",
+      "https://www.canada.ca/en/services/business/start.html",
+      "https://corporationscanada.ic.gc.ca/",
+      "https://search-recherche.ic.gc.ca/"
     ];
     
     const randomUserAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
+    const randomReferrer = referrers[Math.floor(Math.random() * referrers.length)];
     
-    // Options with the proxy information and randomized headers
+    // Generate realistic-looking accept headers that browsers would send
+    const acceptLanguages = [
+      "en-CA,en-US;q=0.9,en;q=0.8,fr-CA;q=0.7",
+      "en-US,en;q=0.9,fr-CA;q=0.8,fr;q=0.7",
+      "fr-CA,fr;q=0.9,en-CA;q=0.8,en;q=0.7",
+      "en-CA,en;q=0.9",
+      "en-US,en;q=0.9"
+    ];
+    
+    // Simulate first-party cookies that would be present in a normal browser session
+    // These are made-up but follow common formats
+    const cookieHeaders = rotatingSession ? "" : [
+      `JSESSIONID=${sessionId}`,
+      `_ga=GA1.2.${Math.floor(Math.random() * 1000000000)}.${Math.floor(Date.now()/1000 - Math.random() * 7776000)}`,
+      `_gid=GA1.2.${Math.floor(Math.random() * 1000000000)}`,
+      `visid_incap_${Math.floor(Math.random() * 10000)}=${sessionId.substring(0, 8)}`,
+      `ASP.NET_SessionId=${Math.random().toString(36).substring(2, 15)}`
+    ].join("; ");
+    
+    // Options with anti-blocking measures
     const enhancedOptions = {
       ...options,
       headers: {
         ...options?.headers,
         'User-Agent': randomUserAgent,
-        'Accept-Language': 'en-CA,en-US;q=0.9,en;q=0.8,fr-CA;q=0.7',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': acceptLanguages[Math.floor(Math.random() * acceptLanguages.length)],
+        'Accept-Encoding': 'gzip, deflate, br',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Dest': 'empty',
         'X-Proxy-Location': 'CA',
         'X-Proxy-Address': proxy,
-        'Referer': 'https://www.ic.gc.ca/', // Make it look like it's coming from a government site
+        'Referer': randomReferrer,
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
+        'DNT': Math.random() > 0.5 ? '1' : null,
       },
-      // Add a random delay before making the request to avoid patterns
+      // Make sure we're not sending cookies in rotated sessions
+      credentials: rotatingSession ? 'omit' : 'include',
       signal: options?.signal
     };
     
-    // Add a small random delay between 100-300ms to vary request patterns
-    await delay(100 + Math.random() * 200);
+    // If we have cookies and aren't rotating session, add them
+    if (cookieHeaders && !rotatingSession) {
+      enhancedOptions.headers['Cookie'] = cookieHeaders;
+    }
+    
+    // Remove null headers
+    Object.keys(enhancedOptions.headers).forEach(key => {
+      if (enhancedOptions.headers[key] === null) {
+        delete enhancedOptions.headers[key];
+      }
+    });
+    
+    // Add a variable delay to avoid detection of patterns
+    // Incognito requests are likely to have more natural timing
+    await delay(200 + Math.random() * 500);
+    
+    // For incognito-like behavior, we should also consider not sending certain headers
+    // that might identify the user
+    if (rotatingSession) {
+      delete enhancedOptions.headers['X-Requested-With'];
+      // In incognito, these headers are often not present or have default values
+    }
     
     const response = await fetch(url, enhancedOptions);
     
@@ -263,14 +349,19 @@ const MOCK_COMPANIES: CompanySuggestion[] = [
 
 // Variable to track if we're using fallback mode
 let usingFallbackMode = false;
+let consecutiveFailures = 0;
+const MAX_FAILURES_BEFORE_FALLBACK = 3;
 
 // Reset fallback mode to try real API again
 export const resetFallbackMode = () => {
   usingFallbackMode = false;
-  console.log("Resetting fallback mode to try real API again");
+  consecutiveFailures = 0;
+  sessionId = crypto.randomUUID(); // Generate new session
+  requestCounter = 0;
+  console.log("Resetting fallback mode and session data to try real API again");
 };
 
-// Search using the real API with IP rotation
+// Search using the real API with anti-blocking techniques
 export const searchCompanies = async (options: SearchOptions): Promise<SearchResult> => {
   console.log("Searching with options:", options);
   
@@ -287,7 +378,9 @@ export const searchCompanies = async (options: SearchOptions): Promise<SearchRes
         lang: 'en',
         queryaction: 'fieldquery',
         sortfield: 'score',
-        sortorder: 'desc'
+        sortorder: 'desc',
+        // Add a cache-busting parameter to avoid cached responses
+        _: Date.now().toString()
       });
   
       // Add pagination if provided
@@ -298,12 +391,16 @@ export const searchCompanies = async (options: SearchOptions): Promise<SearchRes
         params.append('start', options.offset.toString());
       }
   
-      // Make the API request using a Canadian IP
-      const response = await fetchWithCanadianIP(`${SEARCH_API_URL}?${params.toString()}`);
+      // Make the API request with anti-blocking techniques
+      const response = await fetchWithAntiBlocking(`${SEARCH_API_URL}?${params.toString()}`);
       
       if (!response.ok) {
+        consecutiveFailures++;
         throw new Error(`API responded with status: ${response.status}`);
       }
+      
+      // Reset failure counter on success
+      consecutiveFailures = 0;
       
       const data = await response.json();
       console.log("API Response:", data);
@@ -325,9 +422,17 @@ export const searchCompanies = async (options: SearchOptions): Promise<SearchRes
         hasMore
       };
     } catch (error) {
-      console.error("Error searching companies, switching to fallback mode:", error);
-      // Set fallback mode flag
-      usingFallbackMode = true;
+      console.error("Error searching companies:", error);
+      consecutiveFailures++;
+      
+      // If we've failed multiple times in a row, switch to fallback mode
+      if (consecutiveFailures >= MAX_FAILURES_BEFORE_FALLBACK) {
+        console.log(`Switching to fallback mode after ${consecutiveFailures} consecutive failures`);
+        usingFallbackMode = true;
+      } else {
+        console.log(`Attempt failed (${consecutiveFailures}/${MAX_FAILURES_BEFORE_FALLBACK}), will retry with real API on next request`);
+      }
+      
       // Return mock results instead
       return provideFallbackResults(options);
     }
@@ -386,7 +491,7 @@ const convertToValidStatus = (status?: string): Company['status'] => {
   }
 };
 
-// For company details, also use Canadian IP
+// For company details, also use anti-blocking techniques
 export const getCompanyById = async (id: string): Promise<Company | null> => {
   console.log("Fetching company details for ID:", id);
   
@@ -400,9 +505,9 @@ export const getCompanyById = async (id: string): Promise<Company | null> => {
       return provideFallbackCompanyDetails(id);
     }
     
-    // Use a different Canadian IP for this request
-    const proxy = getNextProxy();
-    console.log(`Using Canadian proxy for company details: ${proxy}`);
+    // Use a different session for this request
+    sessionId = crypto.randomUUID();
+    requestCounter = 0;
     
     // Find the suggestion that matches the ID (this would be an API call in a real application)
     const suggestions = await searchCompanies({ query: id, limit: 5 });
