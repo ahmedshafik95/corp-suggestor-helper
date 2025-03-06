@@ -361,23 +361,35 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
           </InputGroup>
         </Box>
         
-        <Button
+        <button
           onClick={handleSearch}
-          bg="#0F172A"
-          _hover={{ bg: "#1E293B" }}
-          color="white"
-          px={8}
-          py={4}
-          h="auto"
-          fontSize="lg"
-          fontWeight="medium"
-          borderRadius="lg"
-          isLoading={isLoading}
-          loadingText="Searching"
-          spinner={<Spinner size="sm" />}
+          className="relative h-14 px-8 overflow-hidden rounded-full group"
+          style={{
+            background: 'linear-gradient(to right, #0F172A, #1E293B)',
+            boxShadow: '0 10px 25px -3px rgba(15, 23, 42, 0.5)'
+          }}
         >
-          Search
-        </Button>
+          <div className="absolute inset-0 w-full h-full transition duration-300 ease-out opacity-0 bg-gradient-to-r from-[#1a2436] to-[#2d3a4f] group-hover:opacity-100"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-black/25 opacity-0 group-hover:opacity-100"></div>
+          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-white/10"></div>
+          <div className="absolute top-[-1px] left-0 w-full h-[1px] bg-white/20"></div>
+          
+          <div className="relative flex items-center justify-center gap-2">
+            {isLoading ? (
+              <>
+                <Spinner size="sm" color="white" />
+                <span className="text-white font-medium text-base">Searching</span>
+              </>
+            ) : (
+              <span className="text-white font-medium text-base">Search</span>
+            )}
+          </div>
+          
+          <div className="absolute inset-0 w-full h-full transition duration-300 ease-out opacity-0 group-hover:opacity-30 pointer-events-none" 
+               style={{
+                 backgroundImage: 'radial-gradient(circle at top, rgba(255,255,255,0.1) 0%, transparent 70%)',
+               }}></div>
+        </button>
       </Flex>
       
       {isOpen && !selectedCompany && (
