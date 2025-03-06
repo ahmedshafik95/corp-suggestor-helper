@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Search, X, ChevronDown, Loader2, Filter, ArrowLeft, RefreshCw, ShieldOff } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
@@ -80,7 +79,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         
         console.log("Received companies:", companies);
         
-        // Check if we're getting fallback data
         const isFallbackData = companies.some(c => 
           c.id === "13281230" || c.id === "13281229" || c.id === "9867543" || 
           c.id.startsWith("54321")
@@ -241,7 +239,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     }
     
     setIsLoading(true);
-    // Force API refresh by temporarily disabling fallback mode
     resetFallbackMode();
     
     searchCompanies({
@@ -257,7 +254,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       
       if (result.companies.length > 0) {
         setIsOpen(true);
-        // Check if using fallback data
         const usingFallbackData = result.companies.some(c => 
           c.id === "13281230" || c.id === "13281229" || c.id === "9867543" || 
           c.id.startsWith("54321")
@@ -381,26 +377,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto relative" ref={containerRef}>
+    <div className="w-full relative" ref={containerRef}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Search for your company</h2>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="sm"
-              variant={antiBlockingMode ? "default" : "outline"}
-              className={antiBlockingMode ? "bg-green-600 hover:bg-green-700" : ""}
-              onClick={toggleAntiBlockingMode}
-            >
-              <ShieldOff size={14} className="mr-2" />
-              {antiBlockingMode ? "Anti-Block" : "Standard"}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            {antiBlockingMode ? "Anti-Blocking Enabled" : "Anti-Blocking Disabled"}
-          </TooltipContent>
-        </Tooltip>
       </div>
       
       {usingFallbackMode && (
@@ -443,49 +422,15 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
             type="search"
             placeholder="Legal name or Corporation number 1234567890"
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              
-              if (selectedCompany && e.target.value !== selectedCompany.name) {
-                setSelectedCompany(null);
-                setShowCompanyForm(false);
-              }
-              
-              if (!e.target.value.trim()) {
-                setSelectedCompany(null);
-                setResults([]);
-                setTotalResults(0);
-                setHasMore(false);
-                setSearchError(null);
-                setShowCompanyForm(false);
-              }
-              
-              if (e.target.value.trim() && !isOpen && !selectedCompany) {
-                setIsOpen(true);
-              }
-            }}
-            onFocus={() => {
-              if (searchQuery.trim() && results.length > 0 && !selectedCompany) {
-                setIsOpen(true);
-              }
-            }}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
             className="pl-10 h-14 border-gray-300 rounded-lg"
           />
           {searchQuery && (
             <button
               type="button"
               className="absolute inset-y-0 right-0 flex items-center pr-3"
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCompany(null);
-                setResults([]);
-                setTotalResults(0);
-                setHasMore(false);
-                setSearchError(null);
-                setIsOpen(false);
-                setShowCompanyForm(false);
-                inputRef.current?.focus();
-              }}
+              onClick={handleClearSearch}
             >
               <X className="h-4 w-4 text-gray-400" />
             </button>
@@ -493,45 +438,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         </div>
         
         <Button
-          onClick={() => {
-            if (searchQuery.trim().length < 2) {
-              toast({
-                title: "Search Error",
-                description: "Please enter at least 2 characters to search.",
-                variant: "destructive",
-              });
-              return;
-            }
-            
-            setIsLoading(true);
-            resetFallbackMode();
-            
-            searchCompanies({
-              query: searchQuery,
-              limit: 5,
-              offset: 0
-            }).then(result => {
-              setResults(result.companies);
-              setTotalResults(result.total);
-              setHasMore(result.hasMore);
-              
-              if (result.companies.length > 0) {
-                setIsOpen(true);
-              } else {
-                setIsOpen(true);
-                toast({
-                  title: "No Results",
-                  description: "No companies found matching your search criteria.",
-                  duration: 3000,
-                });
-              }
-            }).catch(error => {
-              setSearchError("Failed to search. Using demonstration data.");
-              setUsingFallbackMode(true);
-            }).finally(() => {
-              setIsLoading(false);
-            });
-          }}
+          onClick={handleSearch}
           className="h-14 px-8 bg-[#0F172A] hover:bg-[#1E293B] rounded-lg relative overflow-hidden group"
           disabled={isLoading}
         >
