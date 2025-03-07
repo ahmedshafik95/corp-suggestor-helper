@@ -12,9 +12,11 @@ const Index = () => {
   
   const handleCompanySelect = (company: Company) => {
     console.log("Selected company:", company);
-    // Notice we're now logging the directors if they exist
+    // Now we're properly logging directors information if it exists
     if (company.directors && company.directors.length > 0) {
       console.log("Company directors:", company.directors);
+    } else {
+      console.log("No directors found for this company");
     }
   };
 

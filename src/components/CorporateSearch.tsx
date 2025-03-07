@@ -162,11 +162,20 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       setShowMagicalLoader(true);
       setIsOpen(false);
       
+      console.log("Getting details for company:", result);
       const company = await getCompanyById(result.id);
       
       if (company) {
+        console.log("Company details received:", company);
         setSelectedCompany(company);
         setSearchQuery(company.name);
+        
+        if (company.directors && company.directors.length > 0) {
+          console.log("Company has directors:", company.directors);
+        } else {
+          console.log("No directors found for company");
+        }
+        
         onCompanySelect?.(company);
         setResults([]);
         
@@ -548,3 +557,4 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
 };
 
 export default CorporateSearch;
+

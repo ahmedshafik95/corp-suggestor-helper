@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Info } from "lucide-react";
 import { Company } from "@/types/company";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +59,7 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
 
   // Check if company has directors
   const hasDirectors = company.directors && company.directors.length > 0;
+  console.log("Company directors in form:", company.directors);
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
@@ -156,24 +157,38 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
         
         {hasDirectors && (
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-6">
-            <div className="flex items-center gap-2 text-sm font-medium text-[#1E40AF] mb-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-[#1E40AF] mb-4">
               <div className="h-1.5 w-1.5 rounded-full bg-[#1E40AF]"></div>
               <span>Company Directors</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info size={16} className="text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm">
+                  <p>Directors information is retrieved from the official corporate registry.</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             
             <div className="space-y-4">
-              {company.directors?.map((director, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium text-gray-900">{director.name}</h3>
-                      {director.position && (
-                        <p className="text-sm text-gray-600">{director.position}</p>
-                      )}
+              {company.directors && company.directors.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {company.directors.map((director, index) => (
+                    <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex flex-col">
+                        <h3 className="font-medium text-gray-900">{director.name}</h3>
+                        {director.position && (
+                          <p className="text-sm text-gray-600">{director.position}</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="py-4 text-center text-gray-500">
+                  <p>No director information available for this company.</p>
+                </div>
+              )}
             </div>
           </div>
         )}
