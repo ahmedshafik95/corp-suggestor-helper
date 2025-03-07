@@ -485,10 +485,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                     {usingFallbackMode ? (
                       <span>Demonstration Data</span>
                     ) : (
-                      <div className="flex items-center">
-                        <span>Registry API</span>
-                        <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Live</span>
-                      </div>
+                      <span>Registry API</span>
                     )}
                   </div>
                 </div>
@@ -499,34 +496,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                     key={result.id}
                     result={result}
                     searchQuery={searchQuery}
-                    onSelect={(result) => {
-                      setIsLoading(true);
-                      setShowMagicalLoader(true);
-                      setIsOpen(false);
-                      
-                      getCompanyById(result.id).then(company => {
-                        if (company) {
-                          setSelectedCompany(company);
-                          setSearchQuery(company.name);
-                          onCompanySelect?.(company);
-                          setResults([]);
-                          
-                          setTimeout(() => {
-                            setShowMagicalLoader(false);
-                            setShowCompanyForm(true);
-                          }, 1500);
-                        }
-                      }).catch(error => {
-                        setShowMagicalLoader(false);
-                        toast({
-                          title: "Registry Error",
-                          description: "Failed to fetch company details. Using demonstration data.",
-                          variant: "destructive",
-                        });
-                      }).finally(() => {
-                        setIsLoading(false);
-                      });
-                    }}
+                    onSelect={handleSelectResult}
                   />
                 ))}
               </div>

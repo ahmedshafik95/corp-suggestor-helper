@@ -12,6 +12,10 @@ const Index = () => {
   
   const handleCompanySelect = (company: Company) => {
     console.log("Selected company:", company);
+    // Notice we're now logging the directors if they exist
+    if (company.directors && company.directors.length > 0) {
+      console.log("Company directors:", company.directors);
+    }
   };
 
   const handleBack = () => {
