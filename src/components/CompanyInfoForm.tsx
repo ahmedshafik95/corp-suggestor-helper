@@ -10,10 +10,10 @@ import {
   VStack,
   Grid,
   GridItem,
-  FormControl as ChakraFormControl,
-  FormLabel as ChakraFormLabel,
-  useToast as useChakraToast,
-  Tooltip as ChakraTooltip,
+  FormControl,
+  FormLabel,
+  useToast,
+  Tooltip,
   Badge,
 } from "@chakra-ui/react";
 import { ArrowLeft, Info } from "lucide-react";
@@ -25,7 +25,7 @@ interface CompanyInfoFormProps {
 }
 
 const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) => {
-  const toast = useChakraToast();
+  const toast = useToast();
   
   // Initialize form state with company data
   const [formData, setFormData] = useState({
@@ -96,10 +96,10 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
             <VStack align="stretch" gap={6}>
               <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6} w="full">
                 <GridItem>
-                  <ChakraFormControl>
-                    <ChakraFormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                  <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
                       Business legal name
-                    </ChakraFormLabel>
+                    </FormLabel>
                     <Input
                       type="text"
                       id="legalName"
@@ -109,14 +109,14 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
                       w="full"
                       required
                     />
-                  </ChakraFormControl>
+                  </FormControl>
                 </GridItem>
                 
                 <GridItem>
-                  <ChakraFormControl>
-                    <ChakraFormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                  <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
                       Operating name
-                    </ChakraFormLabel>
+                    </FormLabel>
                     <Input
                       type="text"
                       id="operatingName"
@@ -125,16 +125,16 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
                       onChange={handleInputChange}
                       w="full"
                     />
-                  </ChakraFormControl>
+                  </FormControl>
                 </GridItem>
               </Grid>
               
               <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6} w="full">
                 <GridItem>
-                  <ChakraFormControl>
-                    <ChakraFormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                  <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
                       Corporation number
-                    </ChakraFormLabel>
+                    </FormLabel>
                     <Input
                       type="text"
                       id="corporationNumber"
@@ -144,14 +144,14 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
                       w="full"
                       required
                     />
-                  </ChakraFormControl>
+                  </FormControl>
                 </GridItem>
                 
                 <GridItem>
-                  <ChakraFormControl>
-                    <ChakraFormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                  <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
                       Date of incorporation
-                    </ChakraFormLabel>
+                    </FormLabel>
                     <Input
                       type="date"
                       id="incorporationDate"
@@ -161,7 +161,7 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
                       w="full"
                       required
                     />
-                  </ChakraFormControl>
+                  </FormControl>
                 </GridItem>
               </Grid>
             </VStack>
@@ -173,11 +173,11 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
             <Flex alignItems="center" gap={2} fontSize="sm" fontWeight="medium" color="blue.700" mb={4}>
               <Box h="1.5px" w="1.5px" rounded="full" bg="blue.700" />
               <Text>Company Directors</Text>
-              <ChakraTooltip label="Directors information is retrieved from the official corporate registry.">
+              <Tooltip label="Directors information is retrieved from the official corporate registry.">
                 <Box as="span" cursor="help">
                   <Info size={16} color="gray.400" />
                 </Box>
-              </ChakraTooltip>
+              </Tooltip>
             </Flex>
             
             <VStack align="stretch" gap={4}>

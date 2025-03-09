@@ -43,10 +43,10 @@ const Index = () => {
             onClick={handleBack}
             variant="ghost"
             size="sm"
-            leftIcon={<ArrowLeft size={16} />}
             color="gray.600"
             ml="-2"
           >
+            <ArrowLeft size={16} style={{ marginRight: '4px' }} />
             Back
           </Button>
         </Flex>

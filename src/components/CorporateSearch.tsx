@@ -7,7 +7,7 @@ import {
   Button,
   Text,
   VStack,
-  Alert as ChakraAlert,
+  Alert,
   AlertTitle,
   AlertDescription,
   CloseButton,
@@ -344,7 +344,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       </Flex>
       
       {usingFallbackMode && (
-        <ChakraAlert status="info" variant="left-accent" mb={4} rounded="md">
+        <Alert status="info" variant="left-accent" mb={4} rounded="md">
           <Flex alignItems="center" gap={3} width="full">
             <Box flex="1">
               <AlertTitle fontWeight="semibold">Using Demonstration Mode</AlertTitle>
@@ -373,7 +373,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
               </IconButton>
             </Flex>
           </Flex>
-        </ChakraAlert>
+        </Alert>
       )}
       
       <Flex w="full" gap={3} mb={4}>
@@ -469,7 +469,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                   </Flex>
                 </Flex>
               </Box>
-              <VStack divider={<Box h="1px" w="100%" bg="gray.200" />} align="stretch">
+              <VStack align="stretch">
                 {results.map(result => (
                   <SearchResult
                     key={result.id}

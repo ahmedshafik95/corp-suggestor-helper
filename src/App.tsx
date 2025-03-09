@@ -11,7 +11,7 @@ import WaitlistPage from "./pages/WaitlistPage";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ChakraProvider>
+  <ChakraProvider value={{}}>
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background">
         <BrowserRouter>

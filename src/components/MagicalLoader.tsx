@@ -43,7 +43,7 @@ const MagicalLoader: React.FC<MagicalLoaderProps> = ({
         </Flex>
       </Box>
       
-      <VStack spacing={0} gap={3} textAlign="center">
+      <VStack gap={3} textAlign="center">
         <Heading as="h3" fontSize="xl" fontWeight="semibold" color={textColor}>
           {message}
         </Heading>
@@ -52,7 +52,7 @@ const MagicalLoader: React.FC<MagicalLoaderProps> = ({
         </Text>
       </VStack>
       
-      <HStack spacing={0} gap={1} mt={2}>
+      <HStack gap={1} mt={2}>
         <Box 
           w="3px" 
           h="3px" 
@@ -76,16 +76,18 @@ const MagicalLoader: React.FC<MagicalLoaderProps> = ({
         />
       </HStack>
       
-      <style jsx>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+      <style>
+{`
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+`}
+      </style>
     </Flex>
   );
 };

@@ -28,11 +28,12 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ currentStep, totalSteps }) =>
           <Flex alignItems="center" gap={2}>
             <IconButton
               aria-label="Toggle menu"
-              icon={<Menu size={20} />}
               variant="ghost"
               size="sm"
               color="gray.600"
-            />
+            >
+              <Menu size={20} />
+            </IconButton>
             <Text fontSize="lg" fontWeight="medium">Venn</Text>
           </Flex>
           <Flex alignItems="center" gap={4}>
