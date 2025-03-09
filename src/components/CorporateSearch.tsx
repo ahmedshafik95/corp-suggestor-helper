@@ -1,17 +1,34 @@
+
 import React, { useState, useRef, useEffect } from "react";
-import { Search, X, ChevronDown, Loader2, Filter, ArrowLeft, RefreshCw, ShieldOff } from "lucide-react";
+import {
+  Box,
+  Flex,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Button,
+  Text,
+  VStack,
+  Divider,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  CloseButton,
+  useToast,
+  IconButton,
+  Spinner,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { Search, X, ChevronRight, RefreshCw, Filter, ArrowLeft, ShieldOff } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
 import { searchCompanies, getCompanyById, resetFallbackMode } from "@/services/searchService";
 import SearchResult from "./SearchResult";
 import SearchSkeleton from "./SearchSkeleton";
 import MagicalLoader from "./MagicalLoader";
-import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from '@/hooks/use-debounce';
 import CompanyInfoForm from "./CompanyInfoForm";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CorporateSearchProps {
   onCompanySelect?: (company: Company) => void;
@@ -19,7 +36,7 @@ interface CorporateSearchProps {
 }
 
 const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBack }) => {
-  const { toast } = useToast();
+  const toast = useToast();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -38,6 +55,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   const inputRef = useRef<HTMLInputElement>(null);
   
   const debouncedQuery = useDebounce(searchQuery, 300);
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
 
   const handleClickOutside = (event: MouseEvent) => {
     if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -89,14 +108,18 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
           toast({
             title: "Using Demonstration Mode",
             description: "Registry services are currently unavailable. Using demonstration data instead.",
+            status: "info",
             duration: 6000,
+            isClosable: true,
           });
         } else if (!isFallbackData && usingFallbackMode) {
           setUsingFallbackMode(false);
           toast({
             title: "Connected to Registry Services",
             description: "Successfully connected to the real company registry API.",
+            status: "success",
             duration: 3000,
+            isClosable: true,
           });
         }
         
@@ -116,8 +139,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         toast({
           title: "Search Error",
           description: "Failed to connect to registry services. Using demonstration data instead.",
-          variant: "destructive",
+          status: "error",
           duration: 6000,
+          isClosable: true,
         });
       } finally {
         setIsLoading(false);
@@ -190,7 +214,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       toast({
         title: "Registry Error",
         description: "Failed to fetch company details. Using demonstration data.",
-        variant: "destructive",
+        status: "error",
+        isClosable: true,
       });
     } finally {
       setIsLoading(false);
@@ -230,7 +255,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       toast({
         title: "Error",
         description: "Failed to load more results. Please try again.",
-        variant: "destructive",
+        status: "error",
+        isClosable: true,
       });
     } finally {
       setIsLoading(false);
@@ -242,7 +268,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       toast({
         title: "Search Error",
         description: "Please enter at least 2 characters to search.",
-        variant: "destructive",
+        status: "error",
+        isClosable: true,
       });
       return;
     }
@@ -276,7 +303,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         toast({
           title: "No Results",
           description: "No companies found matching your search criteria.",
+          status: "info",
           duration: 3000,
+          isClosable: true,
         });
       }
     }).catch(error => {
@@ -315,7 +344,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     toast({
       title: "Retrying API Connection",
       description: `Attempting to connect with fresh session data (attempt #${retryCount + 1})`,
+      status: "info",
       duration: 3000,
+      isClosable: true,
     });
     
     if (searchQuery.trim().length >= 2) {
@@ -340,7 +371,9 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
           toast({
             title: "Success!",
             description: "Connected to real registry services.",
+            status: "success",
             duration: 3000,
+            isClosable: true,
           });
         }
         
@@ -353,7 +386,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         toast({
           title: "Error",
           description: "Failed to connect to registry services. Using demonstration data.",
-          variant: "destructive",
+          status: "error",
+          isClosable: true,
         });
       }).finally(() => {
         setIsLoading(false);
@@ -368,16 +402,18 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       description: antiBlockingMode 
         ? "Disabled session rotation and header randomization" 
         : "Enabled session rotation and header randomization",
+      status: "info",
       duration: 3000,
+      isClosable: true,
     });
   };
 
   if (showMagicalLoader) {
     return (
-      <div className="w-full max-w-4xl mx-auto relative">
-        <h2 className="text-2xl font-semibold mb-8">Processing</h2>
+      <Box w="full" maxW="4xl" mx="auto" position="relative">
+        <Heading as="h2" fontSize="2xl" fontWeight="semibold" mb={8}>Processing</Heading>
         <MagicalLoader />
-      </div>
+      </Box>
     );
   }
 
@@ -386,120 +422,136 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   }
 
   return (
-    <div className="w-full relative" ref={containerRef}>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Search for your company</h2>
-      </div>
+    <Box w="full" position="relative" ref={containerRef}>
+      <Flex justifyContent="space-between" alignItems="center" mb={4}>
+        <Heading as="h2" fontSize="xl" fontWeight="semibold">Search for your company</Heading>
+      </Flex>
       
       {usingFallbackMode && (
-        <div className="flex items-center gap-3 p-4 mb-4 text-blue-800 border-l-4 border-blue-500 bg-blue-50 rounded">
-          <div className="flex-1">
-            <p className="font-semibold">Using Demonstration Mode</p>
-            <p className="text-sm">
-              Registry services are currently unavailable. The API may be blocking requests.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button 
-              size="sm"
-              variant="outline"
-              className="text-blue-600 border-blue-600 hover:bg-blue-50"
-              onClick={handleRetryRealAPI}
-              disabled={isLoading}
-            >
-              <RefreshCw size={14} className="mr-2" />
-              {isLoading ? "Trying..." : "Try New Session"}
-            </Button>
-            <Button 
-              size="sm"
-              variant="ghost"
-              onClick={() => setUsingFallbackMode(false)}
-            >
-              <X size={14} />
-            </Button>
-          </div>
-        </div>
+        <Alert status="info" variant="left-accent" mb={4} rounded="md">
+          <Flex alignItems="center" gap={3} width="full">
+            <Box flex="1">
+              <AlertTitle fontWeight="semibold">Using Demonstration Mode</AlertTitle>
+              <AlertDescription fontSize="sm">
+                Registry services are currently unavailable. The API may be blocking requests.
+              </AlertDescription>
+            </Box>
+            <Flex gap={2}>
+              <Button 
+                size="sm"
+                variant="outline"
+                colorScheme="blue"
+                onClick={handleRetryRealAPI}
+                isDisabled={isLoading}
+                leftIcon={<RefreshCw size={14} />}
+              >
+                {isLoading ? "Trying..." : "Try New Session"}
+              </Button>
+              <IconButton 
+                aria-label="Close"
+                icon={<X size={14} />}
+                size="sm"
+                variant="ghost"
+                onClick={() => setUsingFallbackMode(false)}
+              />
+            </Flex>
+          </Flex>
+        </Alert>
       )}
       
-      <div className="flex w-full gap-3 mb-4">
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <Input
-            ref={inputRef}
-            type="search"
-            placeholder="Legal name or Corporation number 1234567890"
-            value={searchQuery}
-            onChange={handleInputChange}
-            onFocus={handleInputFocus}
-            className="pl-10 h-14 border-gray-300 rounded-lg"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3"
-              onClick={handleClearSearch}
-            >
-              <X className="h-4 w-4 text-gray-400" />
-            </button>
-          )}
-        </div>
+      <Flex w="full" gap={3} mb={4}>
+        <Box position="relative" flex="1">
+          <InputGroup>
+            <InputLeftElement pointerEvents="none">
+              <Search color="gray.400" size={20} />
+            </InputLeftElement>
+            <Input
+              ref={inputRef}
+              type="search"
+              placeholder="Legal name or Corporation number 1234567890"
+              value={searchQuery}
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
+              pl={10}
+              h={14}
+              borderColor="gray.300"
+              rounded="lg"
+            />
+            {searchQuery && (
+              <Box position="absolute" right={3} top="50%" transform="translateY(-50%)">
+                <IconButton
+                  aria-label="Clear search"
+                  icon={<X size={16} />}
+                  variant="ghost"
+                  size="sm"
+                  color="gray.400"
+                  onClick={handleClearSearch}
+                />
+              </Box>
+            )}
+          </InputGroup>
+        </Box>
         
         <Button
           onClick={handleSearch}
-          className="h-14 px-8 bg-[#0F172A] hover:bg-[#1E293B] rounded-lg relative overflow-hidden group"
-          disabled={isLoading}
+          h={14}
+          px={8}
+          bg="gray.900"
+          _hover={{ bg: "gray.700" }}
+          rounded="lg"
+          position="relative"
+          overflow="hidden"
+          isDisabled={isLoading}
+          color="white"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1E293B] to-[#0F172A] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div className="absolute inset-x-0 top-0 h-px bg-white/20"></div>
-          <div className="absolute inset-x-0 bottom-0 h-px bg-black/20"></div>
-          <span className="relative flex items-center gap-2 text-white">
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Searching</span>
-              </>
-            ) : (
-              <span>Search</span>
-            )}
-          </span>
+          {isLoading ? (
+            <Flex alignItems="center" gap={2}>
+              <Spinner size="sm" />
+              <Text>Searching</Text>
+            </Flex>
+          ) : (
+            <Text>Search</Text>
+          )}
         </Button>
-      </div>
+      </Flex>
       
       {isOpen && !selectedCompany && (
-        <div className="border border-gray-200 rounded-lg bg-white shadow-lg max-h-[320px] overflow-y-auto">
+        <Box 
+          borderWidth="1px" 
+          borderColor={borderColor} 
+          rounded="lg" 
+          bg={bgColor} 
+          shadow="lg" 
+          maxH="320px" 
+          overflowY="auto"
+        >
           {isLoading && results.length === 0 ? (
             <SearchSkeleton count={3} />
           ) : searchError ? (
-            <div className="py-6 text-center">
-              <p className="text-red-500 mb-3">{searchError}</p>
+            <Box py={6} textAlign="center">
+              <Text color="red.500" mb={3}>{searchError}</Text>
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={handleRetryRealAPI}
-                className="text-blue-600"
+                colorScheme="blue"
+                leftIcon={<RefreshCw size={16} />}
               >
-                <RefreshCw size={16} className="mr-2" />
                 Try New Session
               </Button>
-            </div>
+            </Box>
           ) : results.length > 0 ? (
             <>
-              <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50">
-                <div className="flex justify-between items-center">
-                  <span>Showing {results.length} of {totalResults} results</span>
-                  <div className="flex items-center gap-1">
+              <Box px={4} py={2} fontSize="xs" color="gray.500" bg="gray.50">
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Text>Showing {results.length} of {totalResults} results</Text>
+                  <Flex alignItems="center" gap={1}>
                     <Filter size={14} />
-                    {usingFallbackMode ? (
-                      <span>Demonstration Data</span>
-                    ) : (
-                      <span>Registry API</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="divide-y divide-gray-100">
+                    <Text>{usingFallbackMode ? "Demonstration Data" : "Registry API"}</Text>
+                  </Flex>
+                </Flex>
+              </Box>
+              <VStack spacing={0} divider={<Divider />} align="stretch">
                 {results.map(result => (
                   <SearchResult
                     key={result.id}
@@ -508,19 +560,22 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                     onSelect={handleSelectResult}
                   />
                 ))}
-              </div>
+              </VStack>
               {hasMore && (
                 <Button 
                   onClick={loadMoreResults} 
                   variant="ghost"
-                  className="w-full py-2 text-sm text-blue-600 hover:bg-gray-50"
-                  disabled={isLoading}
+                  w="full" 
+                  py={2} 
+                  fontSize="sm" 
+                  colorScheme="blue"
+                  isDisabled={isLoading}
                 >
                   {isLoading ? (
-                    <div className="flex items-center gap-1">
-                      <Loader2 size={14} className="animate-spin" />
-                      <span>Loading...</span>
-                    </div>
+                    <Flex alignItems="center" gap={1}>
+                      <Spinner size="xs" />
+                      <Text>Loading...</Text>
+                    </Flex>
                   ) : (
                     'Load more results'
                   )}
@@ -528,33 +583,34 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
               )}
             </>
           ) : searchQuery.trim().length >= 2 ? (
-            <div className="py-6 text-center text-gray-500">
-              <p className="mb-2">No companies found matching your search.</p>
-              <p className="text-sm text-gray-400">Try a different company name or registration number.</p>
+            <Box py={6} textAlign="center" color="gray.500">
+              <Text mb={2}>No companies found matching your search.</Text>
+              <Text fontSize="sm" color="gray.400">Try a different company name or registration number.</Text>
               {!usingFallbackMode && (
                 <Button 
                   variant="outline"
                   size="sm"
-                  className="mt-4"
+                  mt={4}
                   onClick={() => {
                     setUsingFallbackMode(true);
                     toast({
                       title: "Switched to Demonstration Mode",
                       description: "Now using sample company data for searching.",
+                      status: "info",
                       duration: 3000,
+                      isClosable: true,
                     });
                   }}
                 >
                   Try Demonstration Data
                 </Button>
               )}
-            </div>
+            </Box>
           ) : null}
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
 export default CorporateSearch;
-

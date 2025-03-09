@@ -1,6 +1,11 @@
 
 import React from "react";
-import { Box, Skeleton, VStack, Flex } from "@chakra-ui/react";
+import {
+  Box,
+  Skeleton,
+  VStack,
+  Divider,
+} from "@chakra-ui/react";
 
 interface SearchSkeletonProps {
   count?: number;

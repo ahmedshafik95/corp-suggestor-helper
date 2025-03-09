@@ -1,8 +1,15 @@
 
 import React from "react";
+import {
+  Box,
+  Flex,
+  Text,
+  VStack,
+  HStack,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { CompanySuggestion } from "@/types/company";
 import { Globe, Library, Building2 } from "lucide-react";
-import { Box, Flex, Text, Icon, HStack, Badge } from "@chakra-ui/react";
 
 interface SearchResultProps {
   result: CompanySuggestion;
@@ -16,6 +23,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
   onSelect 
 }) => {
   const { name, registrationNumber, jurisdiction, source, incorporationDate } = result;
+  const hoverBgColor = useColorModeValue("gray.50", "gray.700");
   
   // Highlight matching text
   const getHighlightedText = (text: string, highlight: string) => {
@@ -113,7 +121,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
     <Box 
       p={4} 
       transition="all 0.3s" 
-      _hover={{ bg: "gray.50" }}
+      _hover={{ bg: hoverBgColor }}
       cursor="pointer"
       onClick={() => onSelect(result)}
     >

@@ -1,18 +1,29 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { 
+  Box,
+  Container,
+  Heading,
+  Text,
+  Flex,
+  Button,
+  IconButton,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { ArrowLeft } from "lucide-react";
 import CorporateSearch from "@/components/CorporateSearch";
 import ProgressBar from "@/components/ProgressBar";
 import { Company } from "@/types/company";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const textColor = useColorModeValue("gray.600", "gray.400");
+  const footerBgColor = useColorModeValue("white", "gray.900");
   
   const handleCompanySelect = (company: Company) => {
     console.log("Selected company:", company);
-    // Now we're properly logging directors information if it exists
     if (company.directors && company.directors.length > 0) {
       console.log("Company directors:", company.directors);
     } else {
@@ -25,46 +36,48 @@ const Index = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <Box display="flex" flexDirection="column" minH="100vh" bg="white">
       <ProgressBar currentStep={2} totalSteps={3} />
       
-      <div className="container px-4 md:px-6 max-w-5xl mx-auto pb-12">
-        <div className="flex items-center mb-6">
+      <Container px={{ base: 4, md: 6 }} maxW="5xl" mx="auto" pb={12} flex="1">
+        <Flex alignItems="center" mb={6}>
           <Button 
             onClick={handleBack}
             variant="ghost"
             size="sm"
-            className="text-gray-600 hover:text-gray-900 -ml-2"
+            leftIcon={<ArrowLeft size={16} />}
+            color="gray.600"
+            _hover={{ color: "gray.900" }}
+            ml="-2"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-        </div>
+        </Flex>
         
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">
+        <Box spacing={6}>
+          <Box spacing={2} mb={6}>
+            <Heading as="h1" fontSize="3xl" fontWeight="bold" mb={2}>
               Tell us about your company
-            </h1>
+            </Heading>
             
-            <p className="text-gray-600 max-w-3xl">
+            <Text color={textColor} maxW="3xl">
               You'll need the legal name or Corporation number to find your company below. 
               We'll automatically retrieve all the information needed for the next steps.
-            </p>
-          </div>
+            </Text>
+          </Box>
           
           <CorporateSearch onCompanySelect={handleCompanySelect} onBack={handleBack} />
-        </div>
-      </div>
+        </Box>
+      </Container>
       
-      <footer className="py-6 border-t border-gray-100 mt-auto">
-        <div className="container px-4 md:px-6 max-w-5xl mx-auto">
-          <p className="text-sm text-gray-500">
+      <Box as="footer" py={6} borderTop="1px" borderColor={borderColor} mt="auto" bg={footerBgColor}>
+        <Container px={{ base: 4, md: 6 }} maxW="5xl" mx="auto">
+          <Text fontSize="sm" color="gray.500">
             © {new Date().getFullYear()} Canada Business Registry Search. All rights reserved.
-          </p>
-        </div>
-      </footer>
-    </div>
+          </Text>
+        </Container>
+      </Box>
+    </Box>
   );
 };
 
