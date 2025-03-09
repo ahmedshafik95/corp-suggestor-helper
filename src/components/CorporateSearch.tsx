@@ -1,20 +1,5 @@
-
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Box,
-  Flex,
-  Input,
-  Button,
-  Text,
-  VStack,
-  Alert,
-  AlertTitle,
-  AlertDescription,
-  CloseButton,
-  IconButton,
-  Spinner,
-} from "@chakra-ui/react";
-import { Search, X, ChevronRight, RefreshCw, Filter, ArrowLeft, ShieldOff } from "lucide-react";
+import { Search, X, RefreshCw, Filter, ArrowLeft } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
 import { searchCompanies, getCompanyById, resetFallbackMode } from "@/services/searchService";
 import SearchResult from "./SearchResult";
@@ -23,6 +8,7 @@ import MagicalLoader from "./MagicalLoader";
 import { useDebounce } from '@/hooks/use-debounce';
 import CompanyInfoForm from "./CompanyInfoForm";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface CorporateSearchProps {
   onCompanySelect?: (company: Company) => void;
@@ -31,6 +17,7 @@ interface CorporateSearchProps {
 
 const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBack }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [results, setResults] = useState<CompanySuggestion[]>([]);
@@ -48,8 +35,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   const inputRef = useRef<HTMLInputElement>(null);
   
   const debouncedQuery = useDebounce(searchQuery, 300);
-  const bgColor = "white";
-  const borderColor = "gray.200";
 
   const handleClickOutside = (event: MouseEvent) => {
     if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -98,10 +83,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         
         if (isFallbackData && !usingFallbackMode) {
           setUsingFallbackMode(true);
-          // Toast will be handled in UI alert component instead
         } else if (!isFallbackData && usingFallbackMode) {
           setUsingFallbackMode(false);
-          // Toast will be handled in UI alert component instead
         }
         
         setResults(companies);
@@ -326,10 +309,10 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
 
   if (showMagicalLoader) {
     return (
-      <Box w="full" maxW="4xl" mx="auto" position="relative">
-        <Box as="h2" fontSize="2xl" fontWeight="semibold" mb={8}>Processing</Box>
+      <div className="w-full max-w-4xl mx-auto relative">
+        <h2 className="text-2xl font-semibold mb-8">Processing</h2>
         <MagicalLoader />
-      </Box>
+      </div>
     );
   }
 
@@ -338,138 +321,115 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   }
 
   return (
-    <Box w="full" position="relative" ref={containerRef}>
-      <Flex justifyContent="space-between" alignItems="center" mb={4}>
-        <Box as="h2" fontSize="xl" fontWeight="semibold">Search for your company</Box>
-      </Flex>
+    <div className="w-full relative" ref={containerRef}>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Search for your company</h2>
+      </div>
       
       {usingFallbackMode && (
-        <Alert status="info" variant="left-accent" mb={4} rounded="md">
-          <Flex alignItems="center" gap={3} width="full">
-            <Box flex="1">
-              <AlertTitle fontWeight="semibold">Using Demonstration Mode</AlertTitle>
-              <AlertDescription fontSize="sm">
+        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded-md">
+          <div className="flex items-center gap-3 w-full">
+            <div className="flex-1">
+              <div className="font-semibold">Using Demonstration Mode</div>
+              <div className="text-sm text-gray-600">
                 Registry services are currently unavailable. The API may be blocking requests.
-              </AlertDescription>
-            </Box>
-            <Flex gap={2}>
-              <Button 
-                size="sm"
-                variant="outline"
-                colorScheme="blue"
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                className="text-sm px-3 py-1 border border-blue-400 rounded text-blue-600 hover:bg-blue-100 transition-colors flex items-center gap-1"
                 onClick={handleRetryRealAPI}
                 disabled={isLoading}
               >
-                <RefreshCw size={14} style={{ marginRight: '4px' }} />
+                <RefreshCw size={14} />
                 {isLoading ? "Trying..." : "Try New Session"}
-              </Button>
-              <IconButton 
+              </button>
+              <button 
                 aria-label="Close"
                 onClick={() => setUsingFallbackMode(false)}
-                size="sm"
-                variant="ghost"
+                className="text-gray-500 hover:text-gray-700 p-1"
               >
                 <X size={14} />
-              </IconButton>
-            </Flex>
-          </Flex>
-        </Alert>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       
-      <Flex w="full" gap={3} mb={4}>
-        <Box position="relative" flex="1">
-          <Flex position="relative">
-            <Box position="absolute" left={3} top="50%" transform="translateY(-50%)" zIndex={1}>
-              <Search color="gray.400" size={20} />
-            </Box>
-            <Input
+      <div className="w-full flex gap-3 mb-4">
+        <div className="relative flex-1">
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-gray-400">
+              <Search size={20} />
+            </div>
+            <input
               ref={inputRef}
               type="search"
               placeholder="Legal name or Corporation number 1234567890"
               value={searchQuery}
               onChange={handleInputChange}
               onFocus={handleInputFocus}
-              pl={10}
-              h={14}
-              borderColor="gray.300"
-              rounded="lg"
+              className="pl-10 h-14 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {searchQuery && (
-              <Box position="absolute" right={3} top="50%" transform="translateY(-50%)">
-                <IconButton
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <button
                   aria-label="Clear search"
                   onClick={handleClearSearch}
-                  variant="ghost"
-                  size="sm"
-                  color="gray.400"
+                  className="text-gray-400 hover:text-gray-600 p-1"
                 >
                   <X size={16} />
-                </IconButton>
-              </Box>
+                </button>
+              </div>
             )}
-          </Flex>
-        </Box>
+          </div>
+        </div>
         
-        <Button
+        <button
           onClick={handleSearch}
-          h={14}
-          px={8}
-          bg="gray.900"
-          _hover={{ bg: "gray.700" }}
-          rounded="lg"
-          position="relative"
-          overflow="hidden"
+          className={`h-14 px-8 bg-gray-900 hover:bg-gray-700 rounded-lg relative overflow-hidden text-white ${isLoading ? 'opacity-80' : ''}`}
           disabled={isLoading}
-          color="white"
         >
           {isLoading ? (
-            <Flex alignItems="center" gap={2}>
-              <Spinner size="sm" />
-              <Text>Searching</Text>
-            </Flex>
+            <div className="flex items-center gap-2">
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+              <span>Searching</span>
+            </div>
           ) : (
-            <Text>Search</Text>
+            <span>Search</span>
           )}
-        </Button>
-      </Flex>
+        </button>
+      </div>
       
       {isOpen && !selectedCompany && (
-        <Box 
-          borderWidth="1px" 
-          borderColor={borderColor} 
-          rounded="lg" 
-          bg={bgColor} 
-          shadow="lg" 
-          maxH="320px" 
-          overflowY="auto"
+        <div 
+          className="border border-gray-200 rounded-lg bg-white shadow-lg max-h-80 overflow-y-auto"
         >
           {isLoading && results.length === 0 ? (
             <SearchSkeleton count={3} />
           ) : searchError ? (
-            <Box py={6} textAlign="center">
-              <Text color="red.500" mb={3}>{searchError}</Text>
-              <Button 
-                variant="outline"
-                size="sm"
+            <div className="py-6 text-center">
+              <div className="text-red-500 mb-3">{searchError}</div>
+              <button 
+                className="px-4 py-1 border border-blue-500 rounded text-blue-600 hover:bg-blue-50 text-sm flex items-center gap-1 mx-auto"
                 onClick={handleRetryRealAPI}
-                colorScheme="blue"
               >
-                <RefreshCw size={16} style={{ marginRight: '4px' }} />
+                <RefreshCw size={16} />
                 Try New Session
-              </Button>
-            </Box>
+              </button>
+            </div>
           ) : results.length > 0 ? (
             <>
-              <Box px={4} py={2} fontSize="xs" color="gray.500" bg="gray.50">
-                <Flex justifyContent="space-between" alignItems="center">
-                  <Text>Showing {results.length} of {totalResults} results</Text>
-                  <Flex alignItems="center" gap={1}>
+              <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <span>Showing {results.length} of {totalResults} results</span>
+                  <div className="flex items-center gap-1">
                     <Filter size={14} />
-                    <Text>{usingFallbackMode ? "Demonstration Data" : "Registry API"}</Text>
-                  </Flex>
-                </Flex>
-              </Box>
-              <VStack align="stretch">
+                    <span>{usingFallbackMode ? "Demonstration Data" : "Registry API"}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col">
                 {results.map(result => (
                   <SearchResult
                     key={result.id}
@@ -478,49 +438,43 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                     onSelect={handleSelectResult}
                   />
                 ))}
-              </VStack>
+              </div>
               {hasMore && (
-                <Button 
+                <button 
                   onClick={loadMoreResults} 
-                  variant="ghost"
-                  w="full" 
-                  py={2} 
-                  fontSize="sm" 
-                  colorScheme="blue"
+                  className="w-full py-2 text-sm text-blue-600 hover:bg-gray-50 transition-colors"
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <Flex alignItems="center" gap={1}>
-                      <Spinner size="xs" />
-                      <Text>Loading...</Text>
-                    </Flex>
+                    <div className="flex items-center gap-1 justify-center">
+                      <div className="animate-spin h-3 w-3 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                      <span>Loading...</span>
+                    </div>
                   ) : (
                     'Load more results'
                   )}
-                </Button>
+                </button>
               )}
             </>
           ) : searchQuery.trim().length >= 2 ? (
-            <Box py={6} textAlign="center" color="gray.500">
-              <Text mb={2}>No companies found matching your search.</Text>
-              <Text fontSize="sm" color="gray.400">Try a different company name or registration number.</Text>
+            <div className="py-6 text-center text-gray-500">
+              <p className="mb-2">No companies found matching your search.</p>
+              <p className="text-sm text-gray-400">Try a different company name or registration number.</p>
               {!usingFallbackMode && (
-                <Button 
-                  variant="outline"
-                  size="sm"
-                  mt={4}
+                <button 
+                  className="px-4 py-1 border border-gray-300 rounded mt-4 text-sm hover:bg-gray-50"
                   onClick={() => {
                     setUsingFallbackMode(true);
                   }}
                 >
                   Try Demonstration Data
-                </Button>
+                </button>
               )}
-            </Box>
+            </div>
           ) : null}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

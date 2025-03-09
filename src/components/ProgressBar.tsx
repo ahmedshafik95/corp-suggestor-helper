@@ -1,13 +1,5 @@
 
 import React from "react";
-import {
-  Box,
-  Flex,
-  Text,
-  Button,
-  Container,
-  IconButton,
-} from "@chakra-ui/react";
 import { Menu } from "lucide-react";
 
 interface ProgressBarProps {
@@ -17,46 +9,36 @@ interface ProgressBarProps {
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ currentStep, totalSteps }) => {
   const progressWidth = `${(currentStep / totalSteps) * 100}%`;
-  const borderColor = "gray.200";
-  const bgColor = "gray.100";
-  const progressColor = "blue.600";
 
   return (
-    <Box w="full" borderBottom="1px" borderColor={borderColor}>
-      <Container px={{ base: 4, md: 6 }} maxW="5xl" mx="auto">
-        <Flex w="full" alignItems="center" justifyContent="space-between" py={4}>
-          <Flex alignItems="center" gap={2}>
-            <IconButton
+    <div className="w-full border-b border-gray-200">
+      <div className="px-4 md:px-6 max-w-5xl mx-auto">
+        <div className="w-full flex items-center justify-between py-4">
+          <div className="flex items-center gap-2">
+            <button
               aria-label="Toggle menu"
-              variant="ghost"
-              size="sm"
-              color="gray.600"
+              className="text-gray-600 p-1 rounded-md hover:bg-gray-100"
             >
               <Menu size={20} />
-            </IconButton>
-            <Text fontSize="lg" fontWeight="medium">Venn</Text>
-          </Flex>
-          <Flex alignItems="center" gap={4}>
-            <Text fontSize="sm" fontWeight="medium">Steps</Text>
-            <Button variant="outline" size="sm" borderRadius="full" px={4} h="9">
+            </button>
+            <div className="text-lg font-medium">Venn</div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-sm font-medium">Steps</div>
+            <button className="px-4 py-1 h-9 text-sm font-medium border border-gray-300 rounded-full hover:bg-gray-50">
               Help
-            </Button>
-          </Flex>
-        </Flex>
-      </Container>
+            </button>
+          </div>
+        </div>
+      </div>
       
-      <Box w="full" h="3px" bg={bgColor} position="relative">
-        <Box 
-          h="full" 
-          bg={progressColor} 
-          transition="all 0.3s ease-in-out" 
-          position="absolute" 
-          left="0" 
-          top="0"
-          width={progressWidth}
+      <div className="w-full h-[3px] bg-gray-100 relative">
+        <div 
+          className="h-full bg-blue-600 transition-all duration-300 ease-in-out absolute left-0 top-0"
+          style={{ width: progressWidth }}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

@@ -1,12 +1,5 @@
 
 import React from "react";
-import {
-  Box,
-  Flex,
-  Text,
-  VStack,
-  HStack,
-} from "@chakra-ui/react";
 import { CompanySuggestion } from "@/types/company";
 import { Globe, Library, Building2 } from "lucide-react";
 
@@ -22,7 +15,6 @@ const SearchResult: React.FC<SearchResultProps> = ({
   onSelect 
 }) => {
   const { name, registrationNumber, jurisdiction, source, incorporationDate } = result;
-  const hoverBgColor = "gray.50";
   
   // Highlight matching text
   const getHighlightedText = (text: string, highlight: string) => {
@@ -34,7 +26,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
       <>
         {parts.map((part, index) => 
           part.toLowerCase() === highlight.toLowerCase() ? 
-            <Text as="span" key={index} fontWeight="medium" color="blue.600">{part}</Text> : 
+            <span key={index} className="font-medium text-blue-600">{part}</span> : 
             part
         )}
       </>
@@ -73,15 +65,15 @@ const SearchResult: React.FC<SearchResultProps> = ({
   const getJurisdictionColor = () => {
     switch (jurisdiction) {
       case 'ONTARIO':
-        return 'green';
+        return 'bg-green-500';
       case 'FEDERAL':
-        return 'blue';
+        return 'bg-blue-500';
       case 'BRITISH_COLUMBIA':
-        return 'purple';
+        return 'bg-purple-500';
       case 'ALBERTA':
-        return 'red';
+        return 'bg-red-500';
       default:
-        return 'blue';
+        return 'bg-blue-500';
     }
   };
 
@@ -90,17 +82,12 @@ const SearchResult: React.FC<SearchResultProps> = ({
     if (!jurisdiction) return null;
     
     return (
-      <Flex alignItems="center">
-        <Box 
-          w="2px" 
-          h="2px" 
-          borderRadius="full" 
-          mr={1.5} 
-          bg={`${getJurisdictionColor()}.500`} 
-          opacity={0.7}
+      <div className="flex items-center">
+        <div 
+          className={`w-[2px] h-[2px] rounded-full mr-1.5 opacity-70 ${getJurisdictionColor()}`}
         />
-        <Text>{jurisdiction.replace(/_/g, ' ')}</Text>
-      </Flex>
+        <span>{jurisdiction.replace(/_/g, ' ')}</span>
+      </div>
     );
   };
 
@@ -117,28 +104,25 @@ const SearchResult: React.FC<SearchResultProps> = ({
   };
 
   return (
-    <Box 
-      p={4} 
-      transition="all 0.3s" 
-      _hover={{ bg: hoverBgColor }}
-      cursor="pointer"
+    <div 
+      className="p-4 transition-all duration-300 hover:bg-gray-50 cursor-pointer"
       onClick={() => onSelect(result)}
     >
-      <Text fontWeight="medium" fontSize="base" mb={1}>
+      <div className="font-medium text-base mb-1">
         {getHighlightedText(name, searchQuery)}
-      </Text>
-      <Flex alignItems="center" gap={3} fontSize="sm" color="gray.500">
+      </div>
+      <div className="flex items-center gap-3 text-sm text-gray-500">
         {getJurisdictionDisplay()}
-        {registrationNumber && <Text>#{registrationNumber}</Text>}
-        {incorporationDate && <Text fontSize="xs">Reg: {formatDate(incorporationDate)}</Text>}
-        <Flex alignItems="center" gap={1} fontSize="xs">
-          <Box color="blue.600" opacity={0.7}>
+        {registrationNumber && <div>#{registrationNumber}</div>}
+        {incorporationDate && <div className="text-xs">Reg: {formatDate(incorporationDate)}</div>}
+        <div className="flex items-center gap-1 text-xs">
+          <div className="text-blue-600 opacity-70">
             {getSourceIcon()}
-          </Box>
-          <Text>{getSourceName()}</Text>
-        </Flex>
-      </Flex>
-    </Box>
+          </div>
+          <span>{getSourceName()}</span>
+        </div>
+      </div>
+    </div>
   );
 };
 

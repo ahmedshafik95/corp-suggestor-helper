@@ -1,23 +1,8 @@
 
 import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Input,
-  Text,
-  VStack,
-  Grid,
-  GridItem,
-  FormControl,
-  FormLabel,
-  useToast,
-  Tooltip,
-  Badge,
-} from "@chakra-ui/react";
 import { ArrowLeft, Info } from "lucide-react";
 import { Company } from "@/types/company";
+import { useToast } from "@/hooks/use-toast";
 
 interface CompanyInfoFormProps {
   company: Company;
@@ -25,7 +10,7 @@ interface CompanyInfoFormProps {
 }
 
 const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) => {
-  const toast = useToast();
+  const { toast } = useToast();
   
   // Initialize form state with company data
   const [formData, setFormData] = useState({
@@ -51,10 +36,7 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
     
     toast({
       title: "Information Submitted",
-      description: "Your company information has been successfully submitted.",
-      status: "success",
-      duration: 5000,
-      isClosable: true,
+      description: "Your company information has been successfully submitted."
     });
     
     // You can add navigation logic here if needed
@@ -65,167 +47,154 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
   console.log("Company directors in form:", company.directors);
 
   return (
-    <Box minH="100vh" display="flex" flexDirection="column" bg="white">
-      <Box px={{ base: 6, md: 8, lg: 12 }} pb={12} maxW="4xl" mx="auto" w="full">
-        <Flex alignItems="center" mb={8}>
-          <Button 
+    <div className="min-h-screen flex flex-col bg-white">
+      <div className="px-6 md:px-8 lg:px-12 pb-12 max-w-4xl mx-auto w-full">
+        <div className="flex items-center mb-8">
+          <button 
             onClick={onBack}
-            variant="ghost"
-            color="gray.600"
+            className="text-gray-600 hover:text-gray-900 font-medium flex items-center gap-2 transition-colors"
           >
-            <ArrowLeft size={20} style={{ marginRight: '8px' }} />
+            <ArrowLeft size={20} />
             Back
-          </Button>
-        </Flex>
+          </button>
+        </div>
         
-        <Heading as="h1" fontSize={{ base: "3xl", md: "4xl" }} fontWeight="bold" mb={4}>
+        <h1 className="text-3xl md:text-4xl font-bold mb-4">
           Tell us about your business
-        </Heading>
+        </h1>
         
-        <Text fontSize="lg" color="gray.600" mb={8}>
+        <p className="text-lg text-gray-600 mb-8">
           Venn does not perform any credit checks or require personal guarantees
-        </Text>
+        </p>
         
-        <Box bg="white" rounded="xl" p={6} borderWidth="1px" borderColor="gray.100" shadow="sm" mb={6}>
-          <Flex alignItems="center" gap={2} fontSize="sm" fontWeight="medium" color="blue.700" mb={2}>
-            <Box h="1.5px" w="1.5px" rounded="full" bg="blue.700" />
-            <Text>Business Information</Text>
-          </Flex>
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-6">
+          <div className="flex items-center gap-2 text-sm font-medium text-blue-700 mb-2">
+            <div className="h-[1.5px] w-[1.5px] rounded-full bg-blue-700"></div>
+            <span>Business Information</span>
+          </div>
           
           <form onSubmit={handleSubmit}>
-            <VStack align="stretch" gap={6}>
-              <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6} w="full">
-                <GridItem>
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+            <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                <div>
+                  <div className="flex flex-col">
+                    <label htmlFor="legalName" className="text-sm font-medium text-gray-700 mb-1">
                       Business legal name
-                    </FormLabel>
-                    <Input
+                    </label>
+                    <input
                       type="text"
                       id="legalName"
                       name="legalName"
                       value={formData.legalName}
                       onChange={handleInputChange}
-                      w="full"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
-                  </FormControl>
-                </GridItem>
+                  </div>
+                </div>
                 
-                <GridItem>
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                <div>
+                  <div className="flex flex-col">
+                    <label htmlFor="operatingName" className="text-sm font-medium text-gray-700 mb-1">
                       Operating name
-                    </FormLabel>
-                    <Input
+                    </label>
+                    <input
                       type="text"
                       id="operatingName"
                       name="operatingName"
                       value={formData.operatingName}
                       onChange={handleInputChange}
-                      w="full"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                  </FormControl>
-                </GridItem>
-              </Grid>
+                  </div>
+                </div>
+              </div>
               
-              <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6} w="full">
-                <GridItem>
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                <div>
+                  <div className="flex flex-col">
+                    <label htmlFor="corporationNumber" className="text-sm font-medium text-gray-700 mb-1">
                       Corporation number
-                    </FormLabel>
-                    <Input
+                    </label>
+                    <input
                       type="text"
                       id="corporationNumber"
                       name="corporationNumber"
                       value={formData.corporationNumber}
                       onChange={handleInputChange}
-                      w="full"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
-                  </FormControl>
-                </GridItem>
+                  </div>
+                </div>
                 
-                <GridItem>
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="medium" color="gray.700">
+                <div>
+                  <div className="flex flex-col">
+                    <label htmlFor="incorporationDate" className="text-sm font-medium text-gray-700 mb-1">
                       Date of incorporation
-                    </FormLabel>
-                    <Input
+                    </label>
+                    <input
                       type="date"
                       id="incorporationDate"
                       name="incorporationDate"
                       value={formData.incorporationDate}
                       onChange={handleInputChange}
-                      w="full"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
-                  </FormControl>
-                </GridItem>
-              </Grid>
-            </VStack>
+                  </div>
+                </div>
+              </div>
+            </div>
           </form>
-        </Box>
+        </div>
         
         {hasDirectors && (
-          <Box bg="white" rounded="xl" p={6} borderWidth="1px" borderColor="gray.100" shadow="sm" mb={6}>
-            <Flex alignItems="center" gap={2} fontSize="sm" fontWeight="medium" color="blue.700" mb={4}>
-              <Box h="1.5px" w="1.5px" rounded="full" bg="blue.700" />
-              <Text>Company Directors</Text>
-              <Tooltip label="Directors information is retrieved from the official corporate registry.">
-                <Box as="span" cursor="help">
-                  <Info size={16} color="gray.400" />
-                </Box>
-              </Tooltip>
-            </Flex>
+          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-6">
+            <div className="flex items-center gap-2 text-sm font-medium text-blue-700 mb-4">
+              <div className="h-[1.5px] w-[1.5px] rounded-full bg-blue-700"></div>
+              <span>Company Directors</span>
+              <div className="cursor-help" title="Directors information is retrieved from the official corporate registry.">
+                <Info size={16} className="text-gray-400" />
+              </div>
+            </div>
             
-            <VStack align="stretch" gap={4}>
+            <div className="flex flex-col gap-4">
               {company.directors && company.directors.length > 0 ? (
-                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {company.directors.map((director, index) => (
-                    <Box key={index} bg="gray.50" p={4} rounded="lg" borderWidth="1px" borderColor="gray.200">
-                      <Flex flexDirection="column">
-                        <Text fontWeight="medium" color="gray.900">{director.name}</Text>
+                    <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex flex-col">
+                        <div className="font-medium text-gray-900">{director.name}</div>
                         {director.position && (
-                          <Text fontSize="sm" color="gray.600">{director.position}</Text>
+                          <div className="text-sm text-gray-600">{director.position}</div>
                         )}
-                      </Flex>
-                    </Box>
+                      </div>
+                    </div>
                   ))}
-                </Grid>
+                </div>
               ) : (
-                <Box py={4} textAlign="center" color="gray.500">
-                  <Text>No director information available for this company.</Text>
-                </Box>
+                <div className="py-4 text-center text-gray-500">
+                  <p>No director information available for this company.</p>
+                </div>
               )}
-            </VStack>
-          </Box>
+            </div>
+          </div>
         )}
         
-        <Button 
+        <button 
           type="submit" 
           onClick={handleSubmit}
-          w="full" 
-          bg="gray.900" 
-          _hover={{ bg: "gray.700" }} 
-          color="white" 
-          px={8} 
-          py={6} 
-          h="auto" 
-          fontSize="lg" 
-          fontWeight="medium" 
-          rounded="lg" 
-          mt={8}
+          className="w-full bg-gray-900 hover:bg-gray-700 text-white px-8 py-6 h-auto text-lg font-medium rounded-lg mt-8 transition-colors"
         >
           Continue
-        </Button>
-      </Box>
+        </button>
+      </div>
       
-      <Box as="footer" mt="auto" py={8} textAlign="center" color="gray.500" fontSize="sm">
-        <Text>© {new Date().getFullYear()} Canada Business Registry Search. All rights reserved.</Text>
-      </Box>
-    </Box>
+      <div className="mt-auto py-8 text-center text-gray-500 text-sm">
+        <p>© {new Date().getFullYear()} Canada Business Registry Search. All rights reserved.</p>
+      </div>
+    </div>
   );
 };
 
