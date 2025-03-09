@@ -57,7 +57,7 @@ const Index = () => {
         </div>
       </div>
       
-      <footer className="py-6 border-t border-gray-100">
+      <footer className="py-6 border-t border-gray-100 mt-auto">
         <div className="container px-4 md:px-6 max-w-5xl mx-auto">
           <p className="text-sm text-gray-500">
             © {new Date().getFullYear()} Canada Business Registry Search. All rights reserved.

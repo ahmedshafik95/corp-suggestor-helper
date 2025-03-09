@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ArrowLeft, Info } from "lucide-react";
 import { Company } from "@/types/company";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import ProgressBar from "./ProgressBar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CompanyInfoFormProps {
@@ -15,17 +14,6 @@ interface CompanyInfoFormProps {
 
 const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) => {
   const { toast } = useToast();
-  
-  // Parse province from API data to make it more readable
-  const formatProvince = (province: string): string => {
-    if (!province) return "";
-    
-    // Remove underscores and capitalize first letter of each word
-    return province.replace(/_/g, " ")
-      .split(" ")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-  };
   
   // Initialize form state with company data
   const [formData, setFormData] = useState({
@@ -63,8 +51,6 @@ const CompanyInfoForm: React.FC<CompanyInfoFormProps> = ({ company, onBack }) =>
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
-      <ProgressBar currentStep={3} totalSteps={3} />
-      
       <div className="px-6 md:px-8 lg:px-12 pb-12 max-w-4xl mx-auto w-full">
         <div className="flex items-center mb-8">
           <Button 
