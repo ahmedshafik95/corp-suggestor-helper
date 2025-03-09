@@ -8,8 +8,6 @@ import {
   Spinner,
   VStack,
   HStack,
-  keyframes,
-  useColorModeValue,
 } from "@chakra-ui/react";
 
 interface MagicalLoaderProps {
@@ -19,19 +17,13 @@ interface MagicalLoaderProps {
 const MagicalLoader: React.FC<MagicalLoaderProps> = ({ 
   message = "Processing company information..." 
 }) => {
-  const pulse = keyframes`
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  `;
-
-  const pulseAnimation = `${pulse} 1.5s ease-in-out infinite`;
-  const spinnerColor = useColorModeValue("blue.600", "blue.400");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const textColor = useColorModeValue("gray.800", "white");
-  const subTextColor = useColorModeValue("gray.500", "gray.400");
+  const spinnerColor = "blue.600";
+  const borderColor = "gray.200";
+  const textColor = "gray.800";
+  const subTextColor = "gray.500";
 
   return (
-    <Flex flexDir="column" alignItems="center" justifyContent="center" py={16} gap={8}>
+    <Flex flexDirection="column" alignItems="center" justifyContent="center" py={16} gap={8}>
       <Box position="relative">
         <Box 
           w="80px" 
@@ -39,7 +31,7 @@ const MagicalLoader: React.FC<MagicalLoaderProps> = ({
           borderRadius="full" 
           borderWidth="4px" 
           borderColor={borderColor}
-          animation="spin 2s linear infinite"
+          style={{ animation: "spin 2s linear infinite" }}
         />
         <Flex 
           position="absolute" 
@@ -47,11 +39,11 @@ const MagicalLoader: React.FC<MagicalLoaderProps> = ({
           alignItems="center" 
           justifyContent="center"
         >
-          <Spinner size="xl" color={spinnerColor} thickness="4px" />
+          <Spinner size="xl" color={spinnerColor} />
         </Flex>
       </Box>
       
-      <VStack spacing={3} textAlign="center">
+      <VStack spacing={0} gap={3} textAlign="center">
         <Heading as="h3" fontSize="xl" fontWeight="semibold" color={textColor}>
           {message}
         </Heading>
@@ -60,29 +52,40 @@ const MagicalLoader: React.FC<MagicalLoaderProps> = ({
         </Text>
       </VStack>
       
-      <HStack spacing={1} mt={2}>
+      <HStack spacing={0} gap={1} mt={2}>
         <Box 
           w="3px" 
           h="3px" 
           borderRadius="full" 
           bg="gray.300" 
-          sx={{ animation: pulseAnimation }}
+          style={{ animation: "pulse 1.5s ease-in-out infinite" }}
         />
         <Box 
           w="3px" 
           h="3px" 
           borderRadius="full" 
           bg="gray.400" 
-          sx={{ animation: pulseAnimation, animationDelay: "0.1s" }}
+          style={{ animation: "pulse 1.5s ease-in-out infinite", animationDelay: "0.1s" }}
         />
         <Box 
           w="3px" 
           h="3px" 
           borderRadius="full" 
           bg="gray.500" 
-          sx={{ animation: pulseAnimation, animationDelay: "0.2s" }}
+          style={{ animation: "pulse 1.5s ease-in-out infinite", animationDelay: "0.2s" }}
         />
       </HStack>
+      
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </Flex>
   );
 };

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Text, Flex, HStack, Image, VStack } from "@chakra-ui/react";
+import { Box, Text, Flex, Image, VStack } from "@chakra-ui/react";
 import { Star } from "lucide-react";
 
 interface TestimonialProps {
@@ -40,11 +40,11 @@ const Testimonial: React.FC<TestimonialProps> = ({
       
       <Flex justify="space-between" align="flex-end">
         <Box>
-          <HStack spacing={1} mb={2}>
+          <Flex gap={1} mb={2}>
             {Array.from({ length: rating }).map((_, i) => (
               <Star key={i} size={16} fill="#FF8C00" color="#FF8C00" />
             ))}
-          </HStack>
+          </Flex>
           
           <Text fontSize="sm" color="whiteAlpha.800">
             — {author}, {position},
@@ -85,7 +85,7 @@ const TestimonialsCarousel: React.FC<TestimonialsCarouselProps> = ({
   };
   
   return (
-    <VStack spacing={4} width="100%">
+    <VStack gap={4} width="100%">
       <Box width="100%">
         {testimonials.map((testimonial, index) => (
           <Box 
@@ -99,7 +99,7 @@ const TestimonialsCarousel: React.FC<TestimonialsCarouselProps> = ({
       </Box>
       
       <Flex justify="center" mt={2}>
-        <HStack spacing={1}>
+        <Flex gap={1}>
           {testimonials.map((_, index) => (
             <Box
               key={index}
@@ -113,7 +113,7 @@ const TestimonialsCarousel: React.FC<TestimonialsCarouselProps> = ({
               _hover={{ bg: "white" }}
             />
           ))}
-        </HStack>
+        </Flex>
       </Flex>
     </VStack>
   );

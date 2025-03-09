@@ -6,7 +6,6 @@ import {
   Text,
   VStack,
   HStack,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import { CompanySuggestion } from "@/types/company";
 import { Globe, Library, Building2 } from "lucide-react";
@@ -23,7 +22,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
   onSelect 
 }) => {
   const { name, registrationNumber, jurisdiction, source, incorporationDate } = result;
-  const hoverBgColor = useColorModeValue("gray.50", "gray.700");
+  const hoverBgColor = "gray.50";
   
   // Highlight matching text
   const getHighlightedText = (text: string, highlight: string) => {

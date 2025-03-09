@@ -8,8 +8,6 @@ import {
   Text,
   Flex,
   Button,
-  IconButton,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import { ArrowLeft } from "lucide-react";
 import CorporateSearch from "@/components/CorporateSearch";
@@ -18,9 +16,9 @@ import { Company } from "@/types/company";
 
 const Index = () => {
   const navigate = useNavigate();
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const textColor = useColorModeValue("gray.600", "gray.400");
-  const footerBgColor = useColorModeValue("white", "gray.900");
+  const borderColor = "gray.200";
+  const textColor = "gray.600";
+  const footerBgColor = "white";
   
   const handleCompanySelect = (company: Company) => {
     console.log("Selected company:", company);
@@ -47,15 +45,14 @@ const Index = () => {
             size="sm"
             leftIcon={<ArrowLeft size={16} />}
             color="gray.600"
-            _hover={{ color: "gray.900" }}
             ml="-2"
           >
             Back
           </Button>
         </Flex>
         
-        <Box spacing={6}>
-          <Box spacing={2} mb={6}>
+        <Box mb={6}>
+          <Box mb={6}>
             <Heading as="h1" fontSize="3xl" fontWeight="bold" mb={2}>
               Tell us about your company
             </Heading>

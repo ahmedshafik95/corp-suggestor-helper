@@ -4,21 +4,15 @@ import {
   Box,
   Flex,
   Input,
-  InputGroup,
-  InputLeftElement,
   Button,
   Text,
   VStack,
-  Divider,
-  Alert,
-  AlertIcon,
+  Alert as ChakraAlert,
   AlertTitle,
   AlertDescription,
   CloseButton,
-  useToast,
   IconButton,
   Spinner,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import { Search, X, ChevronRight, RefreshCw, Filter, ArrowLeft, ShieldOff } from "lucide-react";
 import { CompanySuggestion, Company, SearchOptions } from "@/types/company";
@@ -36,7 +30,6 @@ interface CorporateSearchProps {
 }
 
 const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBack }) => {
-  const toast = useToast();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -55,8 +48,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   const inputRef = useRef<HTMLInputElement>(null);
   
   const debouncedQuery = useDebounce(searchQuery, 300);
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const bgColor = "white";
+  const borderColor = "gray.200";
 
   const handleClickOutside = (event: MouseEvent) => {
     if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -105,22 +98,10 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         
         if (isFallbackData && !usingFallbackMode) {
           setUsingFallbackMode(true);
-          toast({
-            title: "Using Demonstration Mode",
-            description: "Registry services are currently unavailable. Using demonstration data instead.",
-            status: "info",
-            duration: 6000,
-            isClosable: true,
-          });
+          // Toast will be handled in UI alert component instead
         } else if (!isFallbackData && usingFallbackMode) {
           setUsingFallbackMode(false);
-          toast({
-            title: "Connected to Registry Services",
-            description: "Successfully connected to the real company registry API.",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
+          // Toast will be handled in UI alert component instead
         }
         
         setResults(companies);
@@ -136,20 +117,13 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         console.error("Error fetching search results:", error);
         setSearchError("Unable to connect to registry services. Using demonstration data instead.");
         setUsingFallbackMode(true);
-        toast({
-          title: "Search Error",
-          description: "Failed to connect to registry services. Using demonstration data instead.",
-          status: "error",
-          duration: 6000,
-          isClosable: true,
-        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchResults();
-  }, [debouncedQuery, toast, selectedCompany, usingFallbackMode]);
+  }, [debouncedQuery, selectedCompany, usingFallbackMode]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -211,12 +185,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     } catch (error) {
       console.error("Error fetching company details:", error);
       setShowMagicalLoader(false);
-      toast({
-        title: "Registry Error",
-        description: "Failed to fetch company details. Using demonstration data.",
-        status: "error",
-        isClosable: true,
-      });
     } finally {
       setIsLoading(false);
     }
@@ -252,12 +220,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
       setHasMore(moreResults);
     } catch (error) {
       console.error("Error loading more results:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load more results. Please try again.",
-        status: "error",
-        isClosable: true,
-      });
     } finally {
       setIsLoading(false);
     }
@@ -265,12 +227,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
 
   const handleSearch = () => {
     if (searchQuery.trim().length < 2) {
-      toast({
-        title: "Search Error",
-        description: "Please enter at least 2 characters to search.",
-        status: "error",
-        isClosable: true,
-      });
       return;
     }
     
@@ -300,13 +256,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
         }
       } else {
         setIsOpen(true); // Show empty results message
-        toast({
-          title: "No Results",
-          description: "No companies found matching your search criteria.",
-          status: "info",
-          duration: 3000,
-          isClosable: true,
-        });
       }
     }).catch(error => {
       console.error("Search error:", error);
@@ -341,14 +290,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
     setSearchError(null);
     setRetryCount(prev => prev + 1);
     
-    toast({
-      title: "Retrying API Connection",
-      description: `Attempting to connect with fresh session data (attempt #${retryCount + 1})`,
-      status: "info",
-      duration: 3000,
-      isClosable: true,
-    });
-    
     if (searchQuery.trim().length >= 2) {
       setIsLoading(true);
       searchCompanies({
@@ -367,28 +308,12 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
           c.id.startsWith("54321")
         );
         
-        if (usingRealData) {
-          toast({
-            title: "Success!",
-            description: "Connected to real registry services.",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        }
-        
         if (result.companies.length > 0) {
           setIsOpen(true);
         } else {
           setIsOpen(true); // Show empty state
         }
       }).catch(error => {
-        toast({
-          title: "Error",
-          description: "Failed to connect to registry services. Using demonstration data.",
-          status: "error",
-          isClosable: true,
-        });
       }).finally(() => {
         setIsLoading(false);
       });
@@ -397,21 +322,12 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
 
   const toggleAntiBlockingMode = () => {
     setAntiBlockingMode(!antiBlockingMode);
-    toast({
-      title: antiBlockingMode ? "Anti-Blocking Disabled" : "Anti-Blocking Enabled",
-      description: antiBlockingMode 
-        ? "Disabled session rotation and header randomization" 
-        : "Enabled session rotation and header randomization",
-      status: "info",
-      duration: 3000,
-      isClosable: true,
-    });
   };
 
   if (showMagicalLoader) {
     return (
       <Box w="full" maxW="4xl" mx="auto" position="relative">
-        <Heading as="h2" fontSize="2xl" fontWeight="semibold" mb={8}>Processing</Heading>
+        <Box as="h2" fontSize="2xl" fontWeight="semibold" mb={8}>Processing</Box>
         <MagicalLoader />
       </Box>
     );
@@ -424,11 +340,11 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
   return (
     <Box w="full" position="relative" ref={containerRef}>
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
-        <Heading as="h2" fontSize="xl" fontWeight="semibold">Search for your company</Heading>
+        <Box as="h2" fontSize="xl" fontWeight="semibold">Search for your company</Box>
       </Flex>
       
       {usingFallbackMode && (
-        <Alert status="info" variant="left-accent" mb={4} rounded="md">
+        <ChakraAlert status="info" variant="left-accent" mb={4} rounded="md">
           <Flex alignItems="center" gap={3} width="full">
             <Box flex="1">
               <AlertTitle fontWeight="semibold">Using Demonstration Mode</AlertTitle>
@@ -442,29 +358,30 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                 variant="outline"
                 colorScheme="blue"
                 onClick={handleRetryRealAPI}
-                isDisabled={isLoading}
-                leftIcon={<RefreshCw size={14} />}
+                disabled={isLoading}
               >
+                <RefreshCw size={14} style={{ marginRight: '4px' }} />
                 {isLoading ? "Trying..." : "Try New Session"}
               </Button>
               <IconButton 
                 aria-label="Close"
-                icon={<X size={14} />}
+                onClick={() => setUsingFallbackMode(false)}
                 size="sm"
                 variant="ghost"
-                onClick={() => setUsingFallbackMode(false)}
-              />
+              >
+                <X size={14} />
+              </IconButton>
             </Flex>
           </Flex>
-        </Alert>
+        </ChakraAlert>
       )}
       
       <Flex w="full" gap={3} mb={4}>
         <Box position="relative" flex="1">
-          <InputGroup>
-            <InputLeftElement pointerEvents="none">
+          <Flex position="relative">
+            <Box position="absolute" left={3} top="50%" transform="translateY(-50%)" zIndex={1}>
               <Search color="gray.400" size={20} />
-            </InputLeftElement>
+            </Box>
             <Input
               ref={inputRef}
               type="search"
@@ -481,15 +398,16 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
               <Box position="absolute" right={3} top="50%" transform="translateY(-50%)">
                 <IconButton
                   aria-label="Clear search"
-                  icon={<X size={16} />}
+                  onClick={handleClearSearch}
                   variant="ghost"
                   size="sm"
                   color="gray.400"
-                  onClick={handleClearSearch}
-                />
+                >
+                  <X size={16} />
+                </IconButton>
               </Box>
             )}
-          </InputGroup>
+          </Flex>
         </Box>
         
         <Button
@@ -501,7 +419,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
           rounded="lg"
           position="relative"
           overflow="hidden"
-          isDisabled={isLoading}
+          disabled={isLoading}
           color="white"
         >
           {isLoading ? (
@@ -535,8 +453,8 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                 size="sm"
                 onClick={handleRetryRealAPI}
                 colorScheme="blue"
-                leftIcon={<RefreshCw size={16} />}
               >
+                <RefreshCw size={16} style={{ marginRight: '4px' }} />
                 Try New Session
               </Button>
             </Box>
@@ -551,7 +469,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                   </Flex>
                 </Flex>
               </Box>
-              <VStack spacing={0} divider={<Divider />} align="stretch">
+              <VStack divider={<Box h="1px" w="100%" bg="gray.200" />} align="stretch">
                 {results.map(result => (
                   <SearchResult
                     key={result.id}
@@ -569,7 +487,7 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                   py={2} 
                   fontSize="sm" 
                   colorScheme="blue"
-                  isDisabled={isLoading}
+                  disabled={isLoading}
                 >
                   {isLoading ? (
                     <Flex alignItems="center" gap={1}>
@@ -593,13 +511,6 @@ const CorporateSearch: React.FC<CorporateSearchProps> = ({ onCompanySelect, onBa
                   mt={4}
                   onClick={() => {
                     setUsingFallbackMode(true);
-                    toast({
-                      title: "Switched to Demonstration Mode",
-                      description: "Now using sample company data for searching.",
-                      status: "info",
-                      duration: 3000,
-                      isClosable: true,
-                    });
                   }}
                 >
                   Try Demonstration Data

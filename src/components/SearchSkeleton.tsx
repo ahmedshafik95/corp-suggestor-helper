@@ -4,7 +4,6 @@ import {
   Box,
   Skeleton,
   VStack,
-  Divider,
 } from "@chakra-ui/react";
 
 interface SearchSkeletonProps {
@@ -16,7 +15,7 @@ const SearchSkeleton: React.FC<SearchSkeletonProps> = ({ count = 3 }) => {
     <Box w="full">
       {Array.from({ length: count }).map((_, index) => (
         <Box key={index} p={4} borderBottomWidth={index < count - 1 ? "1px" : 0}>
-          <VStack align="start" spacing={2}>
+          <VStack align="flex-start" gap={2}>
             <Skeleton height="20px" width="75%" />
             <Skeleton height="16px" width="50%" />
           </VStack>

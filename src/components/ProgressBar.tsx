@@ -6,8 +6,6 @@ import {
   Text,
   Button,
   Container,
-  useColorModeValue,
-  Tooltip,
   IconButton,
 } from "@chakra-ui/react";
 import { Menu } from "lucide-react";
@@ -19,9 +17,9 @@ interface ProgressBarProps {
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ currentStep, totalSteps }) => {
   const progressWidth = `${(currentStep / totalSteps) * 100}%`;
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const bgColor = useColorModeValue("gray.100", "gray.700");
-  const progressColor = useColorModeValue("blue.600", "blue.400");
+  const borderColor = "gray.200";
+  const bgColor = "gray.100";
+  const progressColor = "blue.600";
 
   return (
     <Box w="full" borderBottom="1px" borderColor={borderColor}>
