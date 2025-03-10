@@ -6,12 +6,14 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import LocationSelectionPage from "./pages/LocationSelectionPage";
 import WaitlistPage from "./pages/WaitlistPage";
+import { Toaster } from "sonner";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <div className="min-h-screen bg-background">
+      <Toaster position="top-center" />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<BusinessEntitySelection />} />

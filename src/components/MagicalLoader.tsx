@@ -43,17 +43,6 @@ const MagicalLoader: React.FC<MagicalLoaderProps> = ({
           style={{ animationDelay: "0.2s" }}
         />
       </div>
-      
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };
